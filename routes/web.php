@@ -11,7 +11,7 @@ Route::get('/category/{category:slug}', [HomeController::class, 'category'])->na
 
 
 Route::get('/dashboard', function () {
-    return view('admin.dashboard'); // สร้าง View นี้ด้วย
+    return view('dashboard'); // <-- แก้ไขตรงนี้ ให้เป็น 'dashboard' (ไม่มี admin.)
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
