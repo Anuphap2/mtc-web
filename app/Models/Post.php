@@ -16,6 +16,7 @@ class Post extends Model
         'content',
         'image_path',
         'embed_link',
+        'pdf_path', // <-- เพิ่ม pdf_path
         'category_id',
     ];
 

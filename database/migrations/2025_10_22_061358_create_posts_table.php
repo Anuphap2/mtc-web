@@ -13,10 +13,11 @@ return new class extends Migration {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            // Content will store potentially unsafe HTML, ensure it's purified before saving
             $table->text('content');
             $table->string('image_path')->nullable();
-            $table->string('embed_link')->nullable();
-            $table->string('pdf_path')->nullable(); // <-- เพิ่มบรรทัดนี้
+            $table->string('embed_link')->nullable(); // Optional separate link field
+            $table->string('pdf_path')->nullable(); // Added PDF path column
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
@@ -30,3 +31,4 @@ return new class extends Migration {
         Schema::dropIfExists('posts');
     }
 };
+

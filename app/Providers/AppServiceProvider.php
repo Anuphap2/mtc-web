@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use App\Models\Menu;
+use Illuminate\Support\Facades\View; // <-- 1. Import View
+use App\Models\Menu; // <-- 2. Import Menu Model
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,8 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // --- 3. เพิ่มส่วนนี้ ---
+        // แชร์เมนูทั้งหมด (ที่ active) ไปยังทุก view
+        // เราใช้ View Composer เพื่อให้มันทำงานเฉพาะกับ layout ที่เราต้องการ
         View::composer('layouts.public', function ($view) {
-            $view->with('menus', Menu::orderBy('order')->get());
+            $view->with('public_menus', Menu::orderBy('order', 'asc')->get());
         });
+        // --- จบส่วนที่เพิ่ม ---
     }
 }

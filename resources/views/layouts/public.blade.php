@@ -1,166 +1,130 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="font-kanit">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ $title ?? 'วิทยาลัยเทคนิคแม่สอด' }}</title>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v18.0">
+    </script>
+
+    <style>
+        body {
+            font-family: 'Kanit', 'Figtree', sans-serif;
+        }
+    </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-100">
-    <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="bg-white border-b border-gray-100 shadow-md">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <!-- Logo -->
-                        <div class="shrink-0 flex items-center">
-                            <a href="{{ route('home') }}">
-                                <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                            </a>
-                        </div>
-                    </div>
+{{-- RE-DESIGN: ใช้พื้นหลังสีขาวสะอาดตา (bg-white) --}}
 
-                    <!-- Menu (Dynamic) -->
-                    <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                        @isset($menus) {{-- Check if $menus exists --}}
-                            @foreach ($menus as $menu)
-                                <x-nav-link :href="url($menu->url)" :active="request()->is(ltrim($menu->url, '/'))"> {{-- Use url() helper --}}
+<body class="font-sans antialiased bg-white">
+    <div class="min-h-screen flex flex-col">
+
+        <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
+            <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-20">
+
+                    {{-- 1. Logo --}}
+                    <a href="{{ route('home') }}" class="flex items-center space-x-3">
+                        <img class="h-14 w-auto" src="{{ asset('images/logo.png') }}" alt="Logo MTC">
+                        <span class="font-bold text-lg text-tech-slate-dark">
+                            วิทยาลัยเทคนิคแม่สอด
+                        </span>
+                    </a>
+
+                    {{-- 2. Desktop Navigation --}}
+                    <nav class="hidden md:flex space-x-1">
+                        @isset($public_menus)
+                            @foreach ($public_menus as $menu)
+                                <a href="{{ url($menu->url) }}"
+                                    class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg 
+                                          hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
                                     {{ $menu->name }}
-                                </x-nav-link>
+                                </a>
                             @endforeach
-                        @endisset
-                    </div>
-
-                    <!-- Login Link -->
-                    <div class="hidden sm:flex sm:items-center sm:ml-6">
-                        @auth
-                            <a href="{{ route('dashboard') }}"
-                                class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Dashboard</a>
                         @else
-                            <a href="{{ route('login') }}"
-                                class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Log
-                                in</a>
-                        @endauth
-                    </div>
+                            <a href="{{ route('home') }}"
+                                class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg 
+                                          hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
+                                หน้าหลัก
+                            </a>
+                        @endisset
+                    </nav>
 
-                    <!-- Hamburger -->
-                    <div class="-me-2 flex items-center sm:hidden">
-                        <button @click="open = ! open"
-                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
-                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                <path :class="{ 'hidden': open, 'inline-flex': !open }" class="inline-flex"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 12h16M4 18h16" />
-                                <path :class="{ 'hidden': !open, 'inline-flex': open }" class="hidden"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
+                    {{-- 3. Admin Login Button / Mobile Menu --}}
+                    <div class="flex items-center space-x-2">
+                        {{-- Admin Login (แสดงบน Desktop) --}}
+                        <a href="{{ route('login') }}"
+                            class="hidden md:inline-flex items-center px-4 py-2 text-sm font-medium text-tech-green-dark 
+                                  bg-white border border-tech-green rounded-lg 
+                                  hover:bg-tech-green hover:text-white transition duration-200">
+                            เข้าสู่ระบบ
+                        </a>
+
+                        {{-- Mobile Menu Button (แสดงบน Mobile) --}}
+                        <button class="md:hidden text-gray-700 p-2 rounded-md hover:bg-tech-slate-light">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16m-7 6h7"></path>
                             </svg>
                         </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Responsive Navigation Menu -->
-            <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
-                <div class="pt-2 pb-3 space-y-1">
-                    @isset($menus)
-                        @foreach ($menus as $menu)
-                            <x-responsive-nav-link :href="url($menu->url)" :active="request()->is(ltrim($menu->url, '/'))">
-                                {{ $menu->name }}
-                            </x-responsive-nav-link>
-                        @endforeach
-                    @endisset
-                </div>
-
-                <!-- Responsive Settings Options -->
-                <div class="pt-4 pb-1 border-t border-gray-200">
-                    <div class="px-4">
-                        @auth
-                            <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                            <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-                        @endauth
-                    </div>
-
-                    <div class="mt-3 space-y-1">
-                        @auth
-                            <x-responsive-nav-link :href="route('dashboard')">
-                                {{ __('Dashboard') }}
-                            </x-responsive-nav-link>
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <x-responsive-nav-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
-                                    {{ __('Log Out') }}
-                                </x-responsive-nav-link>
-                            </form>
-                        @else
-                            <x-responsive-nav-link :href="route('login')">
-                                {{ __('Log in') }}
-                            </x-responsive-nav-link>
-                        @endauth
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Page Heading -->
-        @if (isset($header))
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
-        @endif
-
-        <!-- Page Content -->
-        <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            {{-- Display Success/Error Messages --}}
-            @if (session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
-                    role="alert">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if (session('error'))
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                    role="alert">
-                    {{ session('error') }}
-                </div>
-            @endif
-            @if ($errors->any())
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                    role="alert">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
+        </header>
+        <main class="flex-grow">
+            {{-- เราจะปล่อย $slot ให้โล่ง เพื่อให้ home.blade สร้าง layout เอง --}}
             {{ $slot }}
         </main>
+
+
+        {{-- RE-DESIGN: Footer สไตล์มินิมอล เทาเข้ม --}}
+        <footer class="bg-tech-slate-dark text-gray-400">
+            <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    {{-- Column 1: About --}}
+                    <div class="md:col-span-2">
+                        <h5 class="text-lg font-semibold text-white mb-3">วิทยาลัยเทคนิคแม่สอด</h5>
+                        <p class="text-sm">
+                            เลขที่ 133 หมู่ 8 ถนนแม่สอด-แม่ระมาด ต.แม่ปะ อ.แม่สอด จ.ตาก 63110
+                        </p>
+                        <p class="text-sm mt-2">โทร: 055-531-180 | อีเมล: maesot.tec@ms.vec.go.th</p>
+                    </div>
+
+                    {{-- Column 2 & 3: Links (ตัวอย่าง) --}}
+                    <div>
+                        <h5 class="text-base font-semibold text-gray-200 mb-3">เกี่ยวกับ</h5>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-white hover:underline">ประวัติ</a></li>
+                            <li><a href="#" class="hover:text-white hover:underline">ติดต่อเรา</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="text-base font-semibold text-gray-200 mb-3">หลักสูตร</h5>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-white hover:underline">ปวช.</a></li>
+                            <li><a href="#" class="hover:text-white hover:underline">ปวส.</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <hr class="border-gray-700 my-8">
+                <div class="text-center text-sm">
+                    &copy; {{ date('Y') }} วิทยาลัยเทคนิคแม่สอด. สงวนลิขสิทธิ์.
+                </div>
+            </div>
+        </footer>
     </div>
-
-    {{-- !!! ADD FACEBOOK SDK HERE !!! --}}
-    <div id="fb-root"></div>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v18.0"
-        nonce="YOUR_NONCE"></script>
-    {{-- You might need to generate a real nonce if you use Content Security Policy --}}
-
 </body>
 
 </html>
