@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->text('content');
             $table->string('image_path')->nullable();
             $table->string('embed_link')->nullable();
+            $table->string('pdf_path')->nullable(); // <-- เพิ่มบรรทัดนี้
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
