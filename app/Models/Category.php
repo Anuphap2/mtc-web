@@ -10,11 +10,11 @@ class Category extends Model
 {
     use HasFactory;
 
-    // อนุญาตให้กรอก 2 ฟิลด์นี้
-    protected $fillable = ['name', 'slug'];
+    // Fillable เหลือแค่ name
+    protected $fillable = ['name'];
 
     /**
-     * ความสัมพันธ์: 1 Category มีได้หลาย Post
+     * Relationship: One Category has many Posts
      */
     public function posts(): HasMany
     {

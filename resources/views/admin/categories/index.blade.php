@@ -12,16 +12,16 @@
                 <tr class="bg-gray-100">
                     <th class="border p-2 text-left">ID</th>
                     <th class="border p-2 text-left">Name</th>
-                    <th class="border p-2 text-left">Slug</th>
+                    {{-- Removed Slug column header --}}
                     <th class="border p-2">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($categories as $category)
+                @forelse ($categories as $category)
                     <tr>
                         <td class="border p-2">{{ $category->id }}</td>
                         <td class="border p-2">{{ $category->name }}</td>
-                        <td class="border p-2">{{ $category->slug }}</td>
+                        {{-- Removed Slug column data --}}
                         <td class="border p-2 text-center space-x-2">
                             <a href="{{ route('admin.categories.edit', $category) }}" class="text-blue-500 hover:text-blue-700">แก้ไข</a>
                             <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="inline" onsubmit="return confirm('คุณแน่ใจหรือไม่ที่จะลบ?');">
@@ -31,7 +31,11 @@
                             </form>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="3" class="border p-4 text-center text-gray-500">ยังไม่มีประเภทข่าว</td> {{-- Adjusted colspan --}}
+                    </tr>
+                @endforelse
             </tbody>
         </table>
 
