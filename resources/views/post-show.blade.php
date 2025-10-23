@@ -78,12 +78,12 @@
 
 
                     {{-- ===== (ส่วนที่เพิ่มเข้ามา) ข่าวที่เกี่ยวข้อง ===== --}}
-                    @if ($relatedPosts->count() > 0)
+                    @if ($post->count() > 0)
                         <hr class="my-8">
                         <h2 class="text-2xl font-bold text-tech-slate-dark mb-4">ข่าวอื่นในประเภทนี้</h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            @foreach ($relatedPosts as $related)
+                            @foreach ($post as $related)
                                 <a href="{{ route('post.show', $related) }}" 
                                    class="bg-white rounded-lg shadow-lg overflow-hidden group border border-gray-200 
                                           transition-all duration-300 hover:shadow-xl hover:-translate-y-1">

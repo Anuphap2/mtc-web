@@ -14,7 +14,7 @@ class HomeController extends Controller
     public function index()
     {
         // ดึงข่าวล่าสุด (พร้อม category) มาแสดง
-        $posts = Post::with('category')->latest()->paginate(9);
+        $posts = Post::with('category')->latest()->paginate(6);
         return view('home', compact('posts'));
     }
 
@@ -34,7 +34,7 @@ class HomeController extends Controller
     public function category(Category $category)
     {
         // ดึงข่าวเฉพาะใน category นี้
-        $posts = $category->posts()->latest()->paginate(9);
+        $posts = $category->posts()->latest()->paginate(6);
         return view('category-show', compact('category', 'posts'));
     }
 }

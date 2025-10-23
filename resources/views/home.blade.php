@@ -1,13 +1,9 @@
 <x-public-layout>
 
-    {{-- 
-        RE-DESIGN: เปลี่ยนจากแบนเนอร์เต็มจอ เป็นแบบ 2 คอลัมน์ 
-        (ข้อความ + รูปภาพ) บนพื้นหลังสีเทาอ่อน
-    --}}
+    {{-- Hero Section (2-Column) --}}
     <section class="bg-tech-slate-light">
         <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 items-center gap-12 py-16 md:py-24">
-
                 {{-- Column 1: Text & CTA --}}
                 <div>
                     <span class="text-tech-green-dark font-semibold">MAESOD TECHNICAL COLLEGE</span>
@@ -20,8 +16,8 @@
                         พร้อมทักษะที่ตลาดแรงงานต้องการ
                     </p>
                     <a href="https://admission.dbtmaesod.com" target="_blank"
-                        class="mt-8 inline-flex items-center px-8 py-3 bg-tech-green text-white font-semibold rounded-lg shadow-lg 
-                              hover:bg-tech-green-dark transition duration-200 hover:scale-105">
+                        class="mt-8 inline-flex items-center px-8 py-3 bg-tech-green text-white font-semibold rounded-lg shadow-lg
+                                hover:bg-tech-green-dark transition duration-200 hover:scale-105">
                         สมัครเรียนออนไลน์
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
@@ -30,7 +26,6 @@
                         </svg>
                     </a>
                 </div>
-
                 {{-- Column 2: Image --}}
                 <div class="hidden md:block">
                     <img src="{{ asset('images/banner.jpg') }}" alt="Hero Image"
@@ -40,7 +35,7 @@
         </div>
     </section>
 
-    {{-- Section นี้ดีอยู่แล้วครับ (การ์ดไอคอน) คงเดิมไว้ --}}
+    {{-- E-Service Section --}}
     <section class="py-12 sm:py-16 bg-white">
         <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-10 text-center">
@@ -48,9 +43,8 @@
                 <h2 class="text-4xl font-bold text-tech-slate-dark">E-SERVICE</h2>
                 <p class="mt-2 text-lg text-gray-600">ระบบสารสนเทศสำหรับนักศึกษาและบุคลากร</p>
             </div>
-
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {{-- (โค้ดการ์ด E-Service ทั้ง 4 อัน... เหมือนเดิม) --}}
+                {{-- E-Service Cards --}}
                 <a href="https://admission.dbtmaesod.com" target="_blank"
                     class="flex flex-col items-center justify-center p-6 bg-white rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                     <div class="p-4 bg-emerald-50 rounded-full"> <svg class="w-8 h-8 text-tech-green-dark"
@@ -103,6 +97,7 @@
         </div>
     </section>
 
+    {{-- News Section (RE-DESIGN: Clean 3-Column Grid) --}}
     <section class="py-12 sm:py-16 bg-tech-slate-light">
         <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
@@ -112,84 +107,55 @@
                 <p class="mt-2 text-lg text-gray-600">ติดตามข่าวสารล่าสุดจาก MTC</p>
             </div>
 
-            {{-- RE-DESIGN: เปลี่ยนเป็น Layout ข่าวเด่น + ข่าวรอง --}}
-            <div class="grid lg:grid-cols-3 gap-8">
-
-                @if ($posts->count() > 0)
-                    {{-- ข่าวเด่น (ซ้าย) --}}
-                    @php $featuredPost = $posts->first(); @endphp
+            {{-- --- ส่วนที่แก้ไข --- --}}
+            {{-- เปลี่ยน Layout เป็น Grid 3 คอลัมน์ --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {{-- วนลูป $posts ทั้งหมดที่ได้จาก Controller (ซึ่งตอนนี้ดึงมาทุกประเภท) --}}
+                @forelse ($posts as $post)
                     <div
-                        class="lg:col-span-2 bg-white rounded-lg shadow-lg overflow-hidden group border border-gray-200">
-                        <a href="{{ route('post.show', $featuredPost) }}" class="block overflow-hidden">
-                            <img class="h-80 w-full object-cover transition duration-300 ease-in-out group-hover:scale-105"
-                                src="{{ $featuredPost->image_path ? Storage::url($featuredPost->image_path) : asset('images/placeholder.jpg') }}"
-                                alt="{{ $featuredPost->title }}">
+                        class="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col group border border-gray-200 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+                        <a href="{{ route('post.show', $post) }}" class="block overflow-hidden">
+                            {{-- ปรับขนาดรูปภาพให้เหมาะกับ Grid 3 คอลัมน์ --}}
+                            <img class="h-56 w-full object-cover transition duration-300 ease-in-out group-hover:scale-105"
+                                src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/placeholder.jpg') }}"
+                                alt="{{ $post->title }}">
                         </a>
-                        <div class="p-6">
+                        <div class="p-6 flex-1 flex flex-col">
                             <span class="text-sm text-tech-green-dark font-semibold">
-                                {{ $featuredPost->category->name }}
+                                {{ $post->category->name }} {{-- แสดง Category ของข่าวนั้นๆ --}}
                             </span>
-                            <h3 class="mt-2 font-bold text-2xl text-gray-900">
-                                <a href="{{ route('post.show', $featuredPost) }}"
+                            <h3 class="mt-2 font-bold text-xl text-gray-900">
+                                <a href="{{ route('post.show', $post) }}"
                                     class="hover:text-tech-green-dark transition duration-150">
-                                    {{ $featuredPost->title }}
+                                    {{ $post->title }}
                                 </a>
                             </h3>
-                            <p class="mt-3 text-gray-600 text-sm">
-                                {{ Str::limit(strip_tags($featuredPost->content), 150) }}
+                            {{-- ทำให้เนื้อหาสูงเท่ากัน และดันวันที่ไปล่างสุด --}}
+                            <p class="mt-3 text-gray-600 text-sm flex-grow">
+                                {{ Str::limit(strip_tags($post->content), 120) }}
                             </p>
                             <div class="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-500">
-                                {{ $featuredPost->created_at->diffForHumans() }}
+                                {{ $post->created_at->diffForHumans() }}
                             </div>
                         </div>
                     </div>
-
-                    {{-- ข่าวรอง (ขวา) --}}
-                    <div class="lg:col-span-1 space-y-6">
-                        @forelse ($posts->skip(1)->take(3) as $post)
-                            {{-- เอามาอีก 3 ข่าว --}}
-                            <a href="{{ route('post.show', $post) }}"
-                                class="flex items-center bg-white rounded-lg shadow-lg overflow-hidden group border border-gray-200 
-                                      transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                                <img class="h-28 w-28 object-cover flex-shrink-0"
-                                    src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/placeholder-small.jpg') }}"
-                                    alt="{{ $post->title }}">
-                                <div class="p-4">
-                                    <span class="text-xs text-tech-green-dark font-semibold">
-                                        {{ $post->category->name }}
-                                    </span>
-                                    <h4
-                                        class="font-bold text-gray-900 group-hover:text-tech-green-dark transition-colors">
-                                        {{ $post->title }}
-                                    </h4>
-                                    <div class="mt-1 text-xs text-gray-500">
-                                        {{ $post->created_at->diffForHumans() }}
-                                    </div>
-                                </div>
-                            </a>
-                        @empty
-                            {{-- ไม่มีข่าวรอง --}}
-                        @endforelse
-
-                        {{-- ปุ่มดูทั้งหมด --}}
-                        <a href="#"
-                            class="block w-full text-center px-4 py-3 bg-white rounded-lg shadow-lg text-tech-green-dark font-semibold hover:bg-gray-50 transition-all">
-                            ดูกิจกรรมทั้งหมด
-                        </a>
-                    </div>
-                @else
-                    {{-- ไม่มีข่าวเลย --}}
-                    <p class="col-span-3 text-center text-gray-500 text-lg">
+                @empty
+                    <p class="md:col-span-2 lg:col-span-3 text-center text-gray-500 text-lg">
                         ยังไม่มีข่าวสารและกิจกรรมในขณะนี้
                     </p>
-                @endif
+                @endforelse
+            </div>
+            {{-- --- จบส่วนที่แก้ไข --- --}}
+
+            {{-- แสดง Pagination --}}
+            <div class="mt-12">
+                {{ $posts->links() }}
             </div>
 
-            {{-- ซ่อน Pagination เดิมไปก่อน เพราะเรามีปุ่ม "ดูทั้งหมด" แล้ว --}}
-            {{-- <div class="mt-12"> {{ $posts->links() }} </div> --}}
         </div>
     </section>
 
+    {{-- Director Section --}}
     <section class="py-12 sm:py-16 bg-white">
         <div class="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
@@ -214,6 +180,7 @@
         </div>
     </section>
 
+    {{-- Departments Section --}}
     <section class="py-12 sm:py-16 bg-tech-slate-light">
         <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-10 text-center">
@@ -222,7 +189,7 @@
                 <p class="mt-2 text-lg text-gray-600">เลือกเส้นทางที่ใช่สำหรับคุณ</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {{-- (โค้ดการ์ดสาขาวิชาทั้ง 8 อัน... เหมือนเดิม) --}}
+                {{-- Department Cards --}}
                 <a href="#" class="relative rounded-lg overflow-hidden shadow-lg group h-64"> <img
                         src="{{ asset('images/dept-mechanic.jpg') }}"
                         class="w-full h-full object-cover transition duration-300 group-hover:scale-110"
@@ -299,6 +266,7 @@
         </div>
     </section>
 
+    {{-- CTA Section --}}
     <section class="bg-tech-slate-dark text-white py-16">
         <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-3xl md:text-4xl font-bold">รับสมัครนักศึกษาใหม่</h2>
@@ -306,8 +274,8 @@
                 วิทยาลัยเทคนิคแม่สอด เปิดรับสมัครนักเรียน นักศึกษาใหม่
             </p>
             <a href="https://admission.dbtmaesod.com" target="_blank"
-                class="mt-8 inline-block px-8 py-3 bg-tech-green text-white font-semibold rounded-lg shadow-lg 
-                      hover:bg-tech-green-dark transition-all duration-200 hover:scale-105">
+                class="mt-8 inline-block px-8 py-3 bg-tech-green text-white font-semibold rounded-lg shadow-lg
+                        hover:bg-tech-green-dark transition-all duration-200 hover:scale-105">
                 ดูรายละเอียดและสมัครเรียน
             </a>
         </div>

@@ -2,30 +2,24 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="font-kanit">
 
 <head>
+    {{-- (Head content remains the same) --}}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>{{ $title ?? 'วิทยาลัยเทคนิคแม่สอด' }}</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     <div id="fb-root"></div>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v18.0">
     </script>
-
     <style>
         body {
             font-family: 'Kanit', 'Figtree', sans-serif;
         }
     </style>
 </head>
-
-{{-- RE-DESIGN: ใช้พื้นหลังสีขาวสะอาดตา (bg-white) --}}
 
 <body class="font-sans antialiased bg-white">
     <div class="min-h-screen flex flex-col">
@@ -43,57 +37,81 @@
                     </a>
 
                     {{-- 2. Desktop Navigation --}}
-                    <nav class="hidden md:flex space-x-1">
+                    {{-- --- UPDATED Dropdown Logic --- --}}
+                    <nav class="hidden md:flex space-x-1 items-center">
                         @isset($public_menus)
                             @foreach ($public_menus as $menu)
-                                <a href="{{ url($menu->url) }}"
-                                    class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg 
-                                          hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
-                                    {{ $menu->name }}
-                                </a>
+                                {{-- Check if the menu has children --}}
+                                @if ($menu->children->isEmpty())
+                                    {{-- 2.1 No Children: Render as a simple link --}}
+                                    <a href="{{ url($menu->url) }}"
+                                        class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
+                                              hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
+                                        {{ $menu->name }}
+                                    </a>
+                                @else
+                                    {{-- 2.2 Has Children: Render as a dropdown --}}
+                                    <div x-data="{ open: false }" class="relative">
+                                        {{-- Dropdown Trigger Button --}}
+                                        <button @click="open = !open" @click.away="open = false"
+                                            class="flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
+                                                       hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200 focus:outline-none">
+                                            <span>{{ $menu->name }}</span>
+                                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                        </button>
+
+                                        {{-- Dropdown Panel --}}
+                                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                            x-transition:enter-start="transform opacity-0 scale-95"
+                                            x-transition:enter-end="transform opacity-100 scale-100"
+                                            x-transition:leave="transition ease-in duration-75"
+                                            x-transition:leave-start="transform opacity-100 scale-100"
+                                            x-transition:leave-end="transform opacity-0 scale-95"
+                                            class="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-40 origin-top-left"
+                                            style="display: none;">
+                                            <div class="py-1">
+                                                {{-- Loop through children --}}
+                                                @foreach ($menu->children as $child)
+                                                    <a href="{{ url($child->url) }}"
+                                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-tech-green-dark">
+                                                        {{ $child->name }}
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             @endforeach
                         @else
+                            {{-- Fallback if $public_menus is not set --}}
                             <a href="{{ route('home') }}"
-                                class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg 
+                                class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
                                           hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
                                 หน้าหลัก
                             </a>
                         @endisset
                     </nav>
+                    {{-- --- END UPDATED Dropdown Logic --- --}}
 
-                    {{-- 3. Admin Login Button / Mobile Menu --}}
-                    <div class="flex items-center space-x-2">
-                        {{-- Admin Login (แสดงบน Desktop) --}}
-                        <a href="{{ route('login') }}"
-                            class="hidden md:inline-flex items-center px-4 py-2 text-sm font-medium text-tech-green-dark 
-                                  bg-white border border-tech-green rounded-lg 
-                                  hover:bg-tech-green hover:text-white transition duration-200">
-                            เข้าสู่ระบบ
-                        </a>
 
-                        {{-- Mobile Menu Button (แสดงบน Mobile) --}}
-                        <button class="md:hidden text-gray-700 p-2 rounded-md hover:bg-tech-slate-light">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 12h16m-7 6h7"></path>
-                            </svg>
-                        </button>
-                    </div>
                 </div>
             </div>
         </header>
+
+        {{-- Main Content --}}
         <main class="flex-grow">
-            {{-- เราจะปล่อย $slot ให้โล่ง เพื่อให้ home.blade สร้าง layout เอง --}}
             {{ $slot }}
         </main>
 
-
-        {{-- RE-DESIGN: Footer สไตล์มินิมอล เทาเข้ม --}}
+        {{-- Footer --}}
         <footer class="bg-tech-slate-dark text-gray-400">
             <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    {{-- Column 1: About --}}
                     <div class="md:col-span-2">
                         <h5 class="text-lg font-semibold text-white mb-3">วิทยาลัยเทคนิคแม่สอด</h5>
                         <p class="text-sm">
@@ -101,8 +119,6 @@
                         </p>
                         <p class="text-sm mt-2">โทร: 055-531-180 | อีเมล: maesot.tec@ms.vec.go.th</p>
                     </div>
-
-                    {{-- Column 2 & 3: Links (ตัวอย่าง) --}}
                     <div>
                         <h5 class="text-base font-semibold text-gray-200 mb-3">เกี่ยวกับ</h5>
                         <ul class="space-y-2 text-sm">
