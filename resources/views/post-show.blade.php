@@ -12,13 +12,15 @@
 
                 <div class="p-6 md:p-10">
                     {{-- RE-THEME: เปลี่ยนสี Category เป็นสีเขียว --}}
-                    <span class="text-sm text-tech-green-dark font-semibold">{{ $post->category->name }}</span>
-                    
+                    {{-- Check if category exists before accessing name --}}
+                    <span
+                        class="text-sm text-tech-green-dark font-semibold">{{ $post->category?->name ?? 'ไม่มีหมวดหมู่' }}</span>
+
                     {{-- RE-THEME: เปลี่ยนสีหัวข้อเป็นสีเทาเข้ม --}}
                     <h1 class="mt-2 text-3xl font-bold text-tech-slate-dark">{{ $post->title }}</h1>
-                    
+
                     <div class="mt-2 text-sm text-gray-500">
-                        เผยแพร่เมื่อ: {{ $post->created_at->format('d M Y') }}
+                        เผยแพร่เมื่อ: {{ $post->created_at?->format('d M Y') ?? 'N/A' }}
                     </div>
 
                     <hr class="my-6">
@@ -26,7 +28,7 @@
                     {{-- ส่วนเนื้อหา (ใช้ @tailwindcss/typography) --}}
                     <div class="prose max-w-none text-gray-700">
                         {!! nl2br(e($post->content)) !!}
-                        {{-- 
+                        {{--
                             หมายเหตุ: ถ้าเนื้อหาใน $post->content เป็น HTML (เช่น จาก CKEditor)
                             ให้ใช้ {!! $post->content !!} แทนครับ
                             (แต่ต้องมั่นใจว่าข้อมูลสะอาด ปลอดภัยจาก XSS)
@@ -39,10 +41,14 @@
                         <h3 class="text-xl font-semibold mb-4 text-tech-slate-dark">ไฟล์แนบ (PDF)</h3>
                         <div>
                             <a href="{{ Storage::url($post->pdf_path) }}" target="_blank"
-                               class="inline-flex items-center px-4 py-2 bg-tech-green border border-transparent rounded-md 
-                                      font-semibold text-xs text-white uppercase tracking-widest 
+                                class="inline-flex items-center px-4 py-2 bg-tech-green border border-transparent rounded-md
+                                      font-semibold text-xs text-white uppercase tracking-widest
                                       hover:bg-tech-green-dark transition ease-in-out duration-150">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
                                 ดาวน์โหลด PDF
                             </a>
                         </div>
@@ -56,13 +62,23 @@
                             // (โค้ด PHP สำหรับ embed ของคุณเหมือนเดิม)
                             $embedHtml = '';
                             if (Str::contains($post->embed_link, ['youtube.com', 'youtu.be'])) {
-                                preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $post->embed_link, $matches);
+                                preg_match(
+                                    '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i',
+                                    $post->embed_link,
+                                    $matches,
+                                );
                                 $youtubeId = $matches[1] ?? null;
                                 if ($youtubeId) {
-                                    $embedHtml = '<iframe class="w-full aspect-video rounded-lg" src="https://www.youtube.com/embed/' . $youtubeId . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                                    $embedHtml =
+                                        '<iframe class="w-full aspect-video rounded-lg" src="https://www.youtube.com/embed/' .
+                                        $youtubeId .
+                                        '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
                                 }
                             } elseif (Str::contains($post->embed_link, 'facebook.com')) {
-                                $embedHtml = '<div class="fb-post" data-href="' . e($post->embed_link) . '" data-show-text="true" data-width="auto"></div>';
+                                $embedHtml =
+                                    '<div class="fb-post" data-href="' .
+                                    e($post->embed_link) .
+                                    '" data-show-text="true" data-width="auto"></div>';
                             }
                         @endphp
 
@@ -77,25 +93,30 @@
                     @endif
 
 
-                    {{-- ===== (ส่วนที่เพิ่มเข้ามา) ข่าวที่เกี่ยวข้อง ===== --}}
-                    @if ($post->count() > 0)
+                    {{-- ===== (ส่วนที่แก้ไข) ข่าวที่เกี่ยวข้อง ===== --}}
+                    {{-- 1. เช็คว่า $relatedPosts ถูกส่งมาและมีข้อมูลหรือไม่ --}}
+                    @if (isset($relatedPosts) && $relatedPosts->count() > 0)
                         <hr class="my-8">
                         <h2 class="text-2xl font-bold text-tech-slate-dark mb-4">ข่าวอื่นในประเภทนี้</h2>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            @foreach ($post as $related)
-                                <a href="{{ route('post.show', $related) }}" 
-                                   class="bg-white rounded-lg shadow-lg overflow-hidden group border border-gray-200 
+                            {{-- 2. วนลูป $relatedPosts แทน --}}
+                            @foreach ($relatedPosts as $related)
+                                <a href="{{ route('post.show', $related) }}"
+                                    class="bg-white rounded-lg shadow-lg overflow-hidden group border border-gray-200
                                           transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                                    <img class="h-32 w-full object-cover" 
-                                         src="{{ $related->image_path ? Storage::url($related->image_path) : asset('images/placeholder-small.jpg') }}" 
-                                         alt="{{ $related->title }}">
+                                    <img class="h-32 w-full object-cover" {{-- ใช้ $related->... ถูกต้องแล้ว --}}
+                                        src="{{ $related->image_path ? Storage::url($related->image_path) : asset('images/placeholder-small.jpg') }}"
+                                        alt="{{ $related->title }}">
                                     <div class="p-4">
-                                        <h4 class="font-semibold text-gray-900 group-hover:text-tech-green-dark transition-colors text-sm leading-tight">
+                                        <h4
+                                            class="font-semibold text-gray-900 group-hover:text-tech-green-dark transition-colors text-sm leading-tight line-clamp-2">
+                                            {{-- Added line-clamp-2 --}}
                                             {{ $related->title }}
                                         </h4>
                                         <div class="mt-2 text-xs text-gray-500">
-                                            {{ $related->created_at->diffForHumans() }}
+                                            {{-- Use optional chaining for safety --}}
+                                            {{ $related->created_at?->diffForHumans() ?? 'N/A' }}
                                         </div>
                                     </div>
                                 </a>
@@ -107,7 +128,9 @@
 
                     <div class="mt-10">
                         {{-- RE-THEME: เปลี่ยนสีลิงก์กลับ --}}
-                        <a href="{{ route('home') }}" class="text-tech-green-dark hover:text-tech-green-dark font-semibold hover:underline">&larr; กลับหน้าหลัก</a>
+                        <a href="{{ route('home') }}"
+                            class="text-tech-green-dark hover:text-tech-green-dark font-semibold hover:underline">&larr;
+                            กลับหน้าหลัก</a>
                     </div>
                 </div>
 

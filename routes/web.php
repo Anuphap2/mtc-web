@@ -2,44 +2,69 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController; // Make sure HomeController is imported
-use App\Http\Controllers\Admin\CategoryController; // Import Admin Controllers
-use App\Http\Controllers\Admin\MenuController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\HomeController; // Make sure this is imported
+use App\Http\Controllers\Admin; // Import Admin namespace
 
-// Public Routes (Frontend)
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+// Public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/post/{post}', [HomeController::class, 'show'])->name('post.show');
-// Changed route binding from {category:slug} to {category}
 Route::get('/category/{category}', [HomeController::class, 'category'])->name('category.show');
-
-// Breeze Dashboard Route (uses AppLayout which points to admin layout)
-Route::get('/dashboard', function () {
-    return view('dashboard'); // Points to dashboard.blade.php
-})->middleware(['auth'])->name('dashboard'); // Removed verified middleware for simplicity
-
-// Admin Routes Group
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    // CRUD Categories
-    Route::resource('categories', CategoryController::class)->except(['show']); // No show view needed
-
-    // CRUD Menus
-    Route::resource('menus', MenuController::class)->except(['show']);
-
-    // CRUD Users
-    Route::resource('users', UserController::class)->except(['show']);
-
-    // CRUD Posts
-    Route::resource('posts', PostController::class)->except(['show']);
-});
+// --- Add Route for All Posts Page ---
+Route::get('/posts', [HomeController::class, 'allPosts'])->name('posts.index');
+// --- End ---
 
 
-// Breeze Profile Routes (Keep them if you want admin profile editing)
+// Authenticated User Routes (Dashboard, Profile)
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware(['verified'])->name('dashboard'); // Assuming dashboard is for general users
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+
+// Admin Routes
+// Prefix '/admin', Name Prefix 'admin.', Middleware 'auth' (and potentially 'admin' role middleware)
+Route::middleware(['auth', /* 'admin' */])->prefix('admin')->name('admin.')->group(function () {
+
+    // Admin Dashboard (Example)
+    Route::get('/', function () {
+        return view('admin.dashboard'); // Create this view if needed
+    })->name('dashboard');
+
+    // Resource Controllers for Admin
+    Route::resource('categories', Admin\CategoryController::class);
+    Route::resource('posts', Admin\PostController::class);
+    Route::resource('menus', Admin\MenuController::class);
+    Route::resource('users', Admin\UserController::class); // Assuming you have this
+
+    // --- Add Routes for DataTables and Bulk Delete ---
+    Route::get('posts-data', [Admin\PostController::class, 'getPostsData'])->name('posts.data');
+    Route::delete('posts/bulk-destroy', [Admin\PostController::class, 'bulkDestroy'])->name('posts.bulkDestroy');
+    // Add similar routes for categories, menus, users data and bulk delete if needed
+    // Route::get('categories-data', [Admin\CategoryController::class, 'getData'])->name('categories.data');
+    // Route::delete('categories/bulk-destroy', [Admin\CategoryController::class, 'bulkDestroy'])->name('categories.bulkDestroy');
+    // Route::get('menus-data', [Admin\MenuController::class, 'getData'])->name('menus.data');
+    // Route::delete('menus/bulk-destroy', [Admin\MenuController::class, 'bulkDestroy'])->name('menus.bulkDestroy');
+    // Route::get('users-data', [Admin\UserController::class, 'getData'])->name('users.data');
+    // Route::delete('users/bulk-destroy', [Admin\UserController::class, 'bulkDestroy'])->name('users.bulkDestroy');
+    // --- End ---
+
+});
+
+
+require __DIR__ . '/auth.php';

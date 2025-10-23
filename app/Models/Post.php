@@ -10,15 +10,25 @@ class Post extends Model
 {
     use HasFactory;
 
-    // อนุญาตให้กรอกทุกฟิลด์นี้
     protected $fillable = [
         'title',
         'content',
         'image_path',
         'embed_link',
-        'pdf_path', // <-- เพิ่ม pdf_path
+        'pdf_path',
         'category_id',
+        'is_featured', // <-- เพิ่มบรรทัดนี้
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'is_featured' => 'boolean', // <-- เพิ่มบรรทัดนี้
+    ];
+
 
     /**
      * ความสัมพันธ์: 1 Post อยู่ใน 1 Category

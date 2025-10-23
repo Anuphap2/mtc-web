@@ -2,7 +2,14 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="font-kanit">
 
 <head>
-    {{-- (Head content remains the same) --}}
+    {{-- ... (meta, title, fonts) ... --}}
+
+    {{-- Swiper.js CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- ... (facebook sdk, style) ... --}}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -19,15 +26,23 @@
             font-family: 'Kanit', 'Figtree', sans-serif;
         }
     </style>
+    {{-- Alpine.js is included via vite in resources/js/app.js --}}
+
+    {{-- === เพิ่ม CSS ของ Swiper === --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    {{-- === จบส่วนเพิ่ม === --}}
+
+    {{-- เพิ่ม @stack สำหรับ Styles อื่นๆ (ถ้ามี) --}}
+    @stack('styles')
 </head>
 
 <body class="font-sans antialiased bg-white">
     <div class="min-h-screen flex flex-col">
-
+        {{-- Header --}}
         <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
+            {{-- ... Header content ... --}}
             <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-20">
-
                     {{-- 1. Logo --}}
                     <a href="{{ route('home') }}" class="flex items-center space-x-3">
                         <img class="h-14 w-auto" src="{{ asset('images/logo.png') }}" alt="Logo MTC">
@@ -35,24 +50,18 @@
                             วิทยาลัยเทคนิคแม่สอด
                         </span>
                     </a>
-
                     {{-- 2. Desktop Navigation --}}
-                    {{-- --- UPDATED Dropdown Logic --- --}}
                     <nav class="hidden md:flex space-x-1 items-center">
                         @isset($public_menus)
                             @foreach ($public_menus as $menu)
-                                {{-- Check if the menu has children --}}
                                 @if ($menu->children->isEmpty())
-                                    {{-- 2.1 No Children: Render as a simple link --}}
                                     <a href="{{ url($menu->url) }}"
                                         class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
                                               hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
                                         {{ $menu->name }}
                                     </a>
                                 @else
-                                    {{-- 2.2 Has Children: Render as a dropdown --}}
                                     <div x-data="{ open: false }" class="relative">
-                                        {{-- Dropdown Trigger Button --}}
                                         <button @click="open = !open" @click.away="open = false"
                                             class="flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
                                                        hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200 focus:outline-none">
@@ -64,8 +73,6 @@
                                                     clip-rule="evenodd"></path>
                                             </svg>
                                         </button>
-
-                                        {{-- Dropdown Panel --}}
                                         <div x-show="open" x-transition:enter="transition ease-out duration-100"
                                             x-transition:enter-start="transform opacity-0 scale-95"
                                             x-transition:enter-end="transform opacity-100 scale-100"
@@ -75,7 +82,6 @@
                                             class="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-40 origin-top-left"
                                             style="display: none;">
                                             <div class="py-1">
-                                                {{-- Loop through children --}}
                                                 @foreach ($menu->children as $child)
                                                     <a href="{{ url($child->url) }}"
                                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-tech-green-dark">
@@ -88,7 +94,6 @@
                                 @endif
                             @endforeach
                         @else
-                            {{-- Fallback if $public_menus is not set --}}
                             <a href="{{ route('home') }}"
                                 class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
                                           hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
@@ -96,9 +101,22 @@
                             </a>
                         @endisset
                     </nav>
-                    {{-- --- END UPDATED Dropdown Logic --- --}}
-
-
+                    {{-- 3. Admin Login / Mobile Menu --}}
+                    <div class="flex items-center space-x-2">
+                        <a href="{{ route('login') }}"
+                            class="hidden md:inline-flex items-center px-4 py-2 text-sm font-medium text-tech-green-dark
+                                  bg-white border border-tech-green rounded-lg
+                                  hover:bg-tech-green hover:text-white transition duration-200">
+                            เข้าสู่ระบบ
+                        </a>
+                        <button class="md:hidden text-gray-700 p-2 rounded-md hover:bg-tech-slate-light">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16m-7 6h7"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -110,6 +128,7 @@
 
         {{-- Footer --}}
         <footer class="bg-tech-slate-dark text-gray-400">
+            {{-- ... Footer content ... --}}
             <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div class="md:col-span-2">
@@ -141,6 +160,13 @@
             </div>
         </footer>
     </div>
+
+    {{-- === เพิ่ม JS ของ Swiper (ก่อน @stack) === --}}
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    {{-- === จบส่วนเพิ่ม === --}}
+
+    {{-- @stack สำหรับ Scripts อื่นๆ (เช่น init Swiper) --}}
+    @stack('scripts')
 </body>
 
 </html>
