@@ -28,7 +28,7 @@ class HomeController extends Controller
         // Categories ที่มีข่าว พร้อมโหลด 3 ข่าวล่าสุดของแต่ละ Category
         $categoriesWithPosts = Category::whereHas('posts')
             ->with([
-                'posts' => fn($q) => $q->latest()->take(3)
+                'posts' => fn($q) => $q->with('category')->latest()->take(3) // เพิ่ม with('category') ใน Eager Loading ซ้อน
             ])
             ->orderBy('name')
             ->get();
@@ -50,17 +50,26 @@ class HomeController extends Controller
 
     /**
      * หน้าอ่านข่าว (Route Model Binding)
-     * - แสดง related posts (Category ID = 2) ยกเว้นข่าวตัวเอง
+     * - แสดง related posts (จากหมวดหมู่เดียวกัน) ยกเว้นข่าวตัวเอง
      */
     public function show(Post $post): View
     {
+        // โหลด Category ของโพสต์หลัก (สำหรับแสดงผลใน View)
         $post->load('category');
 
-        $relatedPosts = $this->_getPostsByCategory(
-            categoryId: 2,
-            excludeId: $post->id,
-            limit: 3
-        );
+        $relatedPosts = collect(); // สร้าง Collection ว่างไว้ก่อน
+
+        // [ปรับปรุง] ตรวจสอบก่อนว่าโพสต์นี้มีหมวดหมู่หรือไม่
+        if ($post->category_id) {
+            // [แก้ไข] ดึงข่าวจาก category_id ของโพสต์ปัจจุบัน
+            $relatedPosts = $this->_getPostsByCategory(
+                categoryId: $post->category_id,
+                excludeId: $post->id,
+                limit: 3
+            );
+        }
+        // ถ้าโพสต์ไม่มีหมวดหมู่ $relatedPosts จะเป็น Collection ว่าง
+        // (ใน View post-show.blade.php ควรมี @if($relatedPosts->count()) ... @endif)
 
         return view('post-show', compact('post', 'relatedPosts'));
     }
@@ -71,6 +80,7 @@ class HomeController extends Controller
     public function category(Category $category): View
     {
         $posts = $category->posts()
+            ->with('category') // เพิ่ม with('category') เพื่อประสิทธิภาพ
             ->latest()
             ->paginate(9);
 
