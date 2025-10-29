@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -12,84 +13,93 @@ class HomeController extends Controller
 {
     /**
      * หน้าแรก
-     * แสดงข่าวแยกตามประเภท และ สไลด์ข่าวเด่น
+     * - Slider ข่าวเด่น (featured)
+     * - ข่าวแยกตาม Category
      */
-    public function index(): \Illuminate\Contracts\View\View
+    public function index(): View
     {
-        // 1. ดึงข่าวเด่นสำหรับ Slider (เพิ่มเงื่อนไข is_featured = true)
-        // สมมติว่าดึงมา 5 ข่าวล่าสุดที่เป็น featured
+        // Slider ข่าวเด่น 5 ข่าวล่าสุด
         $featuredPosts = Post::with('category')
-            ->where('is_featured', true) // <-- เงื่อนไขใหม่
+            ->where('is_featured', true)
             ->latest()
-            ->take(5) // <-- เอาแค่ 5 ข่าว
+            ->take(5)
             ->get();
 
-        // 2. ดึง Categories ทั้งหมด ที่มีข่าวอย่างน้อย 1 ข่าว
-        //    พร้อมโหลดข่าวล่าสุดของแต่ละ Category มาจำนวนหนึ่ง (เช่น 3 ข่าว)
-        $categoriesWithPosts = Category::whereHas('posts') // เอาเฉพาะ Category ที่มี post
+        // Categories ที่มีข่าว พร้อมโหลด 3 ข่าวล่าสุดของแต่ละ Category
+        $categoriesWithPosts = Category::whereHas('posts')
             ->with([
-                'posts' => function ($query) {
-                    $query->latest()->take(3); // โหลด post ล่าสุด 3 อัน
-                }
+                'posts' => fn($q) => $q->latest()->take(3)
             ])
-            ->orderBy('name', 'asc') // เรียงตามชื่อ Category
+            ->orderBy('name')
             ->get();
 
-        // 3. ส่งข้อมูลไปที่ View
         return view('home', compact('featuredPosts', 'categoriesWithPosts'));
     }
 
-
-    public function allPosts(): \Illuminate\Contracts\View\View
+    /**
+     * แสดงข่าวทั้งหมดแบบแบ่งหน้า
+     */
+    public function allPosts(): View
     {
-        // ดึงข่าวทั้งหมด ล่าสุดก่อน แบบแบ่งหน้า
         $posts = Post::with('category')
             ->latest()
-            ->paginate(12); // แสดง 12 ข่าวต่อหน้า
+            ->paginate(12);
 
-        return view('all-posts', compact('posts')); // ใช้ view ใหม่ชื่อ all-posts.blade.php
+        return view('all-posts', compact('posts'));
     }
-    
-    // (show, category, _getPostsByCategory methods remain the same)
+
     /**
-     * หน้าอ่านข่าว (ใช้ Route Model Binding)
-     * แสดงข่าวที่เกี่ยวข้องเฉพาะประเภท "ประชาสัมพันธ์" (Category ID = 2)
+     * หน้าอ่านข่าว (Route Model Binding)
+     * - แสดง related posts (Category ID = 2) ยกเว้นข่าวตัวเอง
      */
-    public function show(Post $post): \Illuminate\Contracts\View\View
+    public function show(Post $post): View
     {
         $post->load('category');
-        // ดึงข่าวเกี่ยวข้อง ID 2 (ไม่เอาข่าวตัวเอง, 3 ข่าว)
-        // **ปรับปรุง: ใช้ฟังก์ชัน _getPostsByCategory ที่มีอยู่**
-        $relatedPosts = $this->_getPostsByCategory(categoryId: 2, excludeId: $post->id, limit: 3);
+
+        $relatedPosts = $this->_getPostsByCategory(
+            categoryId: 2,
+            excludeId: $post->id,
+            limit: 3
+        );
+
         return view('post-show', compact('post', 'relatedPosts'));
     }
 
     /**
-     * หน้าแสดงข่าวตามประเภท (ใช้ Route Model Binding)
+     * หน้าแสดงข่าวตาม Category
      */
-    public function category(Category $category): \Illuminate\Contracts\View\View
+    public function category(Category $category): View
     {
-        $posts = $category->posts()->latest()->paginate(9);
+        $posts = $category->posts()
+            ->latest()
+            ->paginate(9);
+
         return view('category-show', compact('category', 'posts'));
     }
 
     /**
-     * ฟังก์ชันสำหรับดึงข่าวตาม Category ID (ใช้ภายใน Controller นี้)
+     * ฟังก์ชัน private: ดึงข่าวตาม Category ID
+     *
+     * @param int $categoryId
+     * @param int|null $paginate
+     * @param int|null $excludeId
+     * @param int|null $limit
+     * @return LengthAwarePaginator|Collection
      */
     private function _getPostsByCategory(int $categoryId, ?int $paginate = null, ?int $excludeId = null, ?int $limit = null): LengthAwarePaginator|Collection
     {
         $query = Post::with('category')
             ->where('category_id', $categoryId)
             ->latest();
+
         if ($excludeId !== null) {
             $query->where('id', '!=', $excludeId);
         }
-        if ($paginate !== null) {
-            return $query->paginate($paginate);
-        } elseif ($limit !== null) {
-            return $query->take($limit)->get();
-        } else {
-            return $query->get();
-        }
+
+        return match (true) {
+            $paginate !== null => $query->paginate($paginate),
+            $limit !== null => $query->take($limit)->get(),
+            default => $query->get(),
+        };
     }
 }

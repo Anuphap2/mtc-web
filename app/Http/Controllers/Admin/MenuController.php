@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Menu; // Make sure Menu model is imported
+use App\Models\Menu;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule; // Import Rule for validation
+use Illuminate\Validation\Rule;
 
 class MenuController extends Controller
 {
@@ -14,12 +14,11 @@ class MenuController extends Controller
      */
     public function index()
     {
-        // ดึงเมนูทั้งหมด พร้อมกับเมนูย่อย (ถ้ามี) และเมนูแม่ (ถ้ามี)
-        // เรียงตาม parent_id ก่อน แล้วค่อยเรียงตาม order
         $menus = Menu::with('children', 'parent')
-                     ->orderByRaw('ISNULL(parent_id), parent_id ASC') // Group submenus under parent
+                     ->orderByRaw('ISNULL(parent_id), parent_id ASC')
                      ->orderBy('order', 'asc')
-                     ->paginate(15); // Adjust pagination as needed
+                     ->paginate(15);
+
         return view('admin.menus.index', compact('menus'));
     }
 
@@ -28,14 +27,9 @@ class MenuController extends Controller
      */
     public function create()
     {
-        // --- เพิ่มส่วนนี้ ---
-        // ดึงเมนูทั้งหมดมาเป็นตัวเลือกสำหรับ Parent (เอาเฉพาะ ID กับ Name ก็พอ)
-        // เรียงตามชื่อเพื่อให้เลือกง่าย
-        $parentMenus = Menu::orderBy('name', 'asc')->get(['id', 'name']);
-        // --- จบส่วนเพิ่ม ---
-
-        // --- แก้ไขบรรทัดนี้ ---
-        return view('admin.menus.create', compact('parentMenus')); // ส่ง $parentMenus ไปด้วย
+        return view('admin.menus.create', [
+            'parentMenus' => $this->getParentMenus()
+        ]);
     }
 
     /**
@@ -43,28 +37,12 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
-        // --- แก้ไข Validation ---
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'url' => 'required|string|max:255',
-            'order' => 'required|integer',
-            // เพิ่ม validation สำหรับ parent_id
-            // nullable คืออนุญาตให้เป็นค่าว่าง (เมนูหลัก)
-            // exists:menus,id คือถ้ามีค่า ต้องเป็น id ที่มีอยู่จริงในตาราง menus
-            'parent_id' => 'nullable|integer|exists:menus,id',
-        ]);
-        // --- จบส่วนแก้ไข Validation ---
+        $data = $this->validateMenu($request);
 
-        // --- แก้ไข Create ---
-        Menu::create([
-            'name' => $validated['name'],
-            'url' => $validated['url'],
-            'order' => $validated['order'],
-            'parent_id' => $validated['parent_id'], // เพิ่ม parent_id
-        ]);
-        // --- จบส่วนแก้ไข Create ---
+        Menu::create($data);
 
-        return redirect()->route('admin.menus.index')->with('success', 'สร้างเมนูสำเร็จ');
+        return redirect()->route('admin.menus.index')
+                         ->with('success', 'สร้างเมนูสำเร็จ');
     }
 
     /**
@@ -72,15 +50,10 @@ class MenuController extends Controller
      */
     public function edit(Menu $menu)
     {
-         // --- เพิ่มส่วนนี้ ---
-        // ดึงเมนูทั้งหมดมาเป็นตัวเลือกสำหรับ Parent
-        // ยกเว้น! เมนูตัวเอง (ป้องกันการเลือกตัวเองเป็น Parent)
-         $parentMenus = Menu::where('id', '!=', $menu->id) // ไม่เอาตัวเอง
-                            ->orderBy('name', 'asc')->get(['id', 'name']);
-        // --- จบส่วนเพิ่ม ---
-
-        // --- แก้ไขบรรทัดนี้ ---
-        return view('admin.menus.edit', compact('menu', 'parentMenus')); // ส่ง $parentMenus ไปด้วย
+        return view('admin.menus.edit', [
+            'menu' => $menu,
+            'parentMenus' => $this->getParentMenus($menu->id)
+        ]);
     }
 
     /**
@@ -88,31 +61,12 @@ class MenuController extends Controller
      */
     public function update(Request $request, Menu $menu)
     {
-        // --- แก้ไข Validation ---
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'url' => 'required|string|max:255',
-            'order' => 'required|integer',
-            // parent_id ต้อง nullable หรือ มีอยู่จริง และ ไม่ใช่ id ของตัวเอง
-            'parent_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('menus', 'id'),
-                Rule::notIn([$menu->id]), // ห้ามเลือกตัวเองเป็น Parent
-            ],
-        ]);
-         // --- จบส่วนแก้ไข Validation ---
+        $data = $this->validateMenu($request, $menu->id);
 
-        // --- แก้ไข Update ---
-        $menu->update([
-            'name' => $validated['name'],
-            'url' => $validated['url'],
-            'order' => $validated['order'],
-            'parent_id' => $validated['parent_id'], // เพิ่ม parent_id
-        ]);
-        // --- จบส่วนแก้ไข Update ---
+        $menu->update($data);
 
-        return redirect()->route('admin.menus.index')->with('success', 'อัปเดตเมนูสำเร็จ');
+        return redirect()->route('admin.menus.index')
+                         ->with('success', 'อัปเดตเมนูสำเร็จ');
     }
 
     /**
@@ -120,8 +74,41 @@ class MenuController extends Controller
      */
     public function destroy(Menu $menu)
     {
-        // การลบจะ cascade ไปลบ children ด้วย (ถ้าตั้งค่า onDelete('cascade') ใน migration)
         $menu->delete();
-        return redirect()->route('admin.menus.index')->with('success', 'ลบเมนูสำเร็จ');
+
+        return redirect()->route('admin.menus.index')
+                         ->with('success', 'ลบเมนูสำเร็จ');
+    }
+
+    /**
+     * Validate menu data.
+     */
+    private function validateMenu(Request $request, int $ignoreId = null): array
+    {
+        return $request->validate([
+            'name' => 'required|string|max:255',
+            'url' => 'required|string|max:255',
+            'order' => 'required|integer',
+            'parent_id' => array_filter([
+                'nullable',
+                'integer',
+                Rule::exists('menus', 'id'),
+                $ignoreId ? Rule::notIn([$ignoreId]) : null
+            ]),
+        ]);
+    }
+
+    /**
+     * Get parent menus for dropdown.
+     */
+    private function getParentMenus(int $excludeId = null)
+    {
+        $query = Menu::orderBy('name', 'asc')->select('id', 'name');
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->get();
     }
 }

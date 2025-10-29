@@ -2,70 +2,65 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="font-kanit">
 
 <head>
-    {{-- ... (meta, title, fonts) ... --}}
-
-    {{-- Swiper.js CSS --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    {{-- ... (facebook sdk, style) ... --}}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'วิทยาลัยเทคนิคแม่สอด' }}</title>
+
+    {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    {{-- Tailwind + Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Swiper --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    {{-- Facebook SDK --}}
     <div id="fb-root"></div>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v18.0">
     </script>
+
     <style>
         body {
             font-family: 'Kanit', 'Figtree', sans-serif;
         }
     </style>
-    {{-- Alpine.js is included via vite in resources/js/app.js --}}
 
-    {{-- === เพิ่ม CSS ของ Swiper === --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    {{-- === จบส่วนเพิ่ม === --}}
-
-    {{-- เพิ่ม @stack สำหรับ Styles อื่นๆ (ถ้ามี) --}}
     @stack('styles')
 </head>
 
-<body class="font-sans antialiased bg-white">
+<body class="bg-gray-50 text-gray-700">
     <div class="min-h-screen flex flex-col">
+
         {{-- Header --}}
         <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
-            {{-- ... Header content ... --}}
             <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-20">
-                    {{-- 1. Logo --}}
+                    {{-- Logo --}}
                     <a href="{{ route('home') }}" class="flex items-center space-x-3">
                         <img class="h-14 w-auto" src="{{ asset('images/logo.png') }}" alt="Logo MTC">
-                        <span class="font-bold text-lg text-tech-slate-dark">
-                            วิทยาลัยเทคนิคแม่สอด
-                        </span>
+                        <span class="font-bold text-lg text-tech-slate-dark">วิทยาลัยเทคนิคแม่สอด</span>
                     </a>
-                    {{-- 2. Desktop Navigation --}}
-                    <nav class="hidden md:flex space-x-1 items-center">
+
+                    {{-- Desktop Navigation --}}
+                    <nav class="hidden md:flex space-x-2 items-center">
                         @isset($public_menus)
                             @foreach ($public_menus as $menu)
                                 @if ($menu->children->isEmpty())
                                     <a href="{{ url($menu->url) }}"
                                         class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
-                                              hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
+                                        hover:bg-tech-slate-light hover:text-tech-green-dark transition">
                                         {{ $menu->name }}
                                     </a>
                                 @else
                                     <div x-data="{ open: false }" class="relative">
                                         <button @click="open = !open" @click.away="open = false"
                                             class="flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
-                                                       hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200 focus:outline-none">
-                                            <span>{{ $menu->name }}</span>
+                                            hover:bg-tech-slate-light hover:text-tech-green-dark transition">
+                                            {{ $menu->name }}
                                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd"
@@ -96,27 +91,9 @@
                         @else
                             <a href="{{ route('home') }}"
                                 class="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
-                                          hover:bg-tech-slate-light hover:text-tech-green-dark transition duration-200">
-                                หน้าหลัก
-                            </a>
+                                hover:bg-tech-slate-light hover:text-tech-green-dark transition">หน้าหลัก</a>
                         @endisset
                     </nav>
-                    {{-- 3. Admin Login / Mobile Menu --}}
-                    <div class="flex items-center space-x-2">
-                        <a href="{{ route('login') }}"
-                            class="hidden md:inline-flex items-center px-4 py-2 text-sm font-medium text-tech-green-dark
-                                  bg-white border border-tech-green rounded-lg
-                                  hover:bg-tech-green hover:text-white transition duration-200">
-                            เข้าสู่ระบบ
-                        </a>
-                        <button class="md:hidden text-gray-700 p-2 rounded-md hover:bg-tech-slate-light">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 12h16m-7 6h7"></path>
-                            </svg>
-                        </button>
-                    </div>
                 </div>
             </div>
         </header>
@@ -127,15 +104,12 @@
         </main>
 
         {{-- Footer --}}
-        <footer class="bg-tech-slate-dark text-gray-400">
-            {{-- ... Footer content ... --}}
+        <footer class="bg-tech-slate-dark text-gray-300 mt-8">
             <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div class="md:col-span-2">
                         <h5 class="text-lg font-semibold text-white mb-3">วิทยาลัยเทคนิคแม่สอด</h5>
-                        <p class="text-sm">
-                            เลขที่ 133 หมู่ 8 ถนนแม่สอด-แม่ระมาด ต.แม่ปะ อ.แม่สอด จ.ตาก 63110
-                        </p>
+                        <p class="text-sm">เลขที่ 133 หมู่ 8 ถนนแม่สอด-แม่ระมาด ต.แม่ปะ อ.แม่สอด จ.ตาก 63110</p>
                         <p class="text-sm mt-2">โทร: 055-531-180 | อีเมล: maesot.tec@ms.vec.go.th</p>
                     </div>
                     <div>
@@ -154,18 +128,13 @@
                     </div>
                 </div>
                 <hr class="border-gray-700 my-8">
-                <div class="text-center text-sm">
-                    &copy; {{ date('Y') }} วิทยาลัยเทคนิคแม่สอด. สงวนลิขสิทธิ์.
-                </div>
+                <div class="text-center text-sm">&copy; {{ date('Y') }} วิทยาลัยเทคนิคแม่สอด. สงวนลิขสิทธิ์.</div>
             </div>
         </footer>
     </div>
 
-    {{-- === เพิ่ม JS ของ Swiper (ก่อน @stack) === --}}
+    {{-- Swiper JS --}}
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    {{-- === จบส่วนเพิ่ม === --}}
-
-    {{-- @stack สำหรับ Scripts อื่นๆ (เช่น init Swiper) --}}
     @stack('scripts')
 </body>
 

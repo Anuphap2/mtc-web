@@ -8,102 +8,88 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-// Use DataTables Facade
 use Yajra\DataTables\Facades\DataTables;
-// Optional: Use Log facade for debugging
-use Illuminate\Support\Facades\Log; // <-- เพิ่ม Log
-
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
     /**
-     * แสดงหน้า Index (เตรียมสำหรับ DataTables)
+     * หน้า Index (DataTables AJAX)
      */
     public function index()
     {
-        // View นี้จะถูก Populate ด้วย DataTables ผ่าน AJAX
         return view('admin.posts.index');
     }
 
-     /**
-     * Function สำหรับดึงข้อมูลให้ DataTables (AJAX)
+    /**
+     * ดึงข้อมูลสำหรับ DataTables
      */
     public function getPostsData(Request $request)
     {
-        // ตรวจสอบว่าเป็น AJAX request ที่ DataTables คาดหวังหรือไม่
-        if ($request->ajax()) {
-            try { // <-- เพิ่ม try-catch เพื่อจัดการข้อผิดพลาด
-                // ดึงข้อมูล posts พร้อม category, เรียงล่าสุด, เลือกเฉพาะคอลัมน์จากตาราง posts
-                $data = Post::with('category')->latest()->select('posts.*');
-
-                // สร้าง Response ของ DataTables
-                return DataTables::of($data)
-                    ->addIndexColumn() // เพิ่มคอลัมน์ลำดับ (DT_RowIndex)
-                    ->addColumn('category_name', function ($row) {
-                        // แสดงชื่อ Category (ถ้ามี)
-                        return $row->category ? $row->category->name : '<span class="text-xs text-red-500">N/A</span>';
-                    })
-                     ->addColumn('image', function ($row) {
-                         // แสดงรูปภาพ ถ้ามีและไฟล์ tồn tạiจริง
-                        if ($row->image_path && Storage::disk('public')->exists($row->image_path)) {
-                            return '<img src="' . Storage::url($row->image_path) . '" alt="Image" class="h-16 w-auto max-w-[100px] object-contain rounded shadow">'; // ปรับ Style รูปภาพ
-                        }
-                        return '<span class="text-gray-400 text-xs italic">ไม่มีรูป</span>'; // ข้อความถ้าไม่มีรูป
-                    })
-                     ->addColumn('featured', function ($row) {
-                         // แสดงไอคอน check ถ้าเป็น is_featured
-                        return $row->is_featured
-                            ? '<svg class="w-5 h-5 text-green-500 mx-auto" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>'
-                            : '';
-                    })
-                    ->addColumn('action', function ($row) {
-                        // --- เพิ่มปุ่ม Edit และ Delete ---
-                        $editUrl = route('admin.posts.edit', $row->id);
-                        $deleteUrl = route('admin.posts.destroy', $row->id);
-                        $csrfToken = csrf_token(); // Get CSRF token
-
-                        // ใช้ Icons และจัดวางปุ่ม
-                        $btn = '<div class="flex items-center space-x-2 justify-start">'; // จัดชิดซ้าย
-                        // Edit Button
-                        $btn .= '<a href="' . $editUrl . '" title="แก้ไข" class="text-indigo-600 hover:text-indigo-900">';
-                        $btn .= '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>';
-                        $btn .= '</a> ';
-                        // Delete Button (using form for DELETE method)
-                        $btn .= '<form action="' . $deleteUrl . '" method="POST" class="inline-block" onsubmit="return confirm(\'ยืนยันการลบข่าวนี้?\');">';
-                        $btn .= '<input type="hidden" name="_token" value="' . $csrfToken . '">'; // Add CSRF token
-                        $btn .= '<input type="hidden" name="_method" value="DELETE">';       // Add METHOD spoofing
-                        $btn .= '<button type="submit" title="ลบ" class="text-red-600 hover:text-red-900">';
-                        $btn .= '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>';
-                        $btn .= '</button>';
-                        $btn .= '</form>';
-                        $btn .= '</div>';
-                        return $btn;
-                        // --- จบส่วนเพิ่มปุ่ม ---
-                    })
-                    ->addColumn('checkbox', function ($row) {
-                        // Checkbox สำหรับ Bulk Delete
-                        return '<input type="checkbox" name="ids[]" value="' . $row->id . '" class="post-checkbox rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 focus:ring-offset-0">'; // Added focus:ring-offset-0
-                    })
-                    ->editColumn('created_at', function ($row) {
-                         // จัดรูปแบบวันที่ให้อ่านง่ายขึ้น (ใช้ Carbon)
-                        return $row->created_at ? $row->created_at->translatedFormat('j M Y, H:i') : '-'; // เช่น 23 ต.ค. 2025, 13:28
-                     })
-                    // ระบุคอลัมน์ที่มี HTML เพื่อให้ DataTables แสดงผลถูกต้อง
-                    ->rawColumns(['action', 'image', 'featured','checkbox', 'category_name'])
-                    ->make(true); // สร้าง JSON response
-
-            } catch (\Exception $e) {
-                // Log ข้อผิดพลาดไว้ดูบน Server
-                Log::error('DataTables Error (Posts): ' . $e->getMessage());
-                // ส่ง JSON error กลับไปให้ DataTables (จะแสดงใน Console ของ Browser)
-                return response()->json(['error' => 'Could not retrieve data. Server error.'], 500);
-            }
+        if (!$request->ajax()) {
+            abort(403, 'Direct access forbidden.');
         }
-        // ป้องกันการเข้าถึง URL นี้โดยตรง
-        abort(403, 'Direct access forbidden.');
+
+        try {
+            $query = Post::with('category')->select('posts.*');
+
+            return DataTables::of($query)
+                ->addIndexColumn()
+
+                // 1. [ปรับปรุง] ใช้ Badge สำหรับ Category
+                ->addColumn('category_name', function ($row) {
+                    if ($row->category) {
+                        // สี Badge อาจจะเปลี่ยนตาม Category ID หรือสุ่ม
+                        return '<span class="px-2 py-1 text-xs font-semibold leading-5 rounded-full bg-blue-100 text-blue-800">' . $row->category->name . '</span>';
+                    }
+                    return '<span class="px-2 py-1 text-xs font-semibold leading-5 rounded-full bg-red-100 text-red-800">N/A</span>';
+                })
+
+                // 2. [แก้ไขบั๊ก] เปลี่ยนจาก join(...) เป็น leftJoin(...)
+                ->orderColumn('category_name', function ($query, $order) {
+                    // ใช้ leftJoin เพื่อให้ข่าวที่ไม่มีหมวดหมู่ยังคงแสดงอยู่
+                    $query->leftJoin('categories', 'posts.category_id', '=', 'categories.id')
+                        ->orderBy('categories.name', $order)
+                        ->select('posts.*'); // select('posts.*') ยังจำเป็นอยู่
+                })
+
+                // 3. [ปรับปรุง] ปรับสไตล์รูปภาพให้มีขนาดคงที่
+                ->addColumn(
+                    'image',
+                    function ($row) {
+                        if ($row->image_path && Storage::disk('public')->exists($row->image_path)) {
+                            // ใช้ h-12 w-16 (4:3 ratio) และ object-cover จะดูเนี้ยบในตาราง
+                            return '<img src="' . Storage::url($row->image_path) . '" alt="' . e($row->title) . '" class="h-12 w-16 object-cover rounded-md shadow-sm">';
+                        }
+                        return '<span class="flex items-center justify-center h-12 w-16 bg-gray-50 rounded-md text-gray-400 text-xs italic">ไม่มีรูป</span>';
+                    }
+                )
+
+                // 4. [ปรับปรุง] ใช้ Badge สำหรับ Featured
+                ->addColumn(
+                    'featured',
+                    function ($row) {
+                        if ($row->is_featured) {
+                            return '<span class="px-2 py-1 text-xs font-semibold leading-5 rounded-full bg-green-100 text-green-800">เด่น</span>';
+                        }
+                        return '<span class="px-2 py-1 text-xs font-semibold leading-5 rounded-full bg-gray-100 text-gray-600">ทั่วไป</span>';
+                    }
+                )
+
+                ->addColumn('action', fn($row) => $this->actionButtons($row))
+                ->editColumn('created_at', fn($row) => $row->created_at?->translatedFormat('j M Y, H:i') ?? '-')
+                ->rawColumns(['action', 'image', 'featured', 'category_name'])
+                ->make(true);
+
+        } catch (\Exception $e) {
+            Log::error('DataTables Error (Posts): ' . $e->getMessage());
+            return response()->json(['error' => 'Could not retrieve data. Server error.'], 500);
+        }
     }
 
-    // --- (create, store, edit, update - ควรตรวจสอบ 'is_featured' ให้ครบ) ---
+    /**
+     * สร้างข่าว
+     */
     public function create()
     {
         $categories = Category::orderBy('name')->get();
@@ -112,32 +98,20 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        // (เพิ่ม is_featured ใน validation และ create() ถ้ายังไม่มี)
-         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'embed_link' => 'nullable|url|max:1000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'pdf' => 'nullable|file|mimes:pdf|max:10240',
-            'is_featured' => 'nullable|boolean', // Added
-        ]);
+        $data = $this->validatePost($request);
 
-        $imagePath = $request->hasFile('image') ? $request->file('image')->store('posts/images', 'public') : null;
-        $pdfPath = $request->hasFile('pdf') ? $request->file('pdf')->store('posts/pdfs', 'public') : null;
+        $data['image_path'] = $this->storeFile($request, 'image', 'posts/images');
+        $data['pdf_path'] = $this->storeFile($request, 'pdf', 'posts/pdfs');
+        $data['is_featured'] = $request->boolean('is_featured');
 
-        Post::create([
-            'title' => $validated['title'],
-            'content' => $validated['content'],
-            'category_id' => $validated['category_id'],
-            'embed_link' => $validated['embed_link'],
-            'image_path' => $imagePath,
-            'pdf_path' => $pdfPath,
-            'is_featured' => $request->boolean('is_featured'), // Added
-        ]);
+        Post::create($data);
+
         return redirect()->route('admin.posts.index')->with('success', 'สร้างข่าวสำเร็จ');
     }
 
+    /**
+     * แก้ไขข่าว
+     */
     public function edit(Post $post)
     {
         $categories = Category::orderBy('name')->get();
@@ -146,126 +120,125 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
-         // (เพิ่ม is_featured ใน validation และ update() ถ้ายังไม่มี)
-         $validated = $request->validate([
+        $data = $this->validatePost($request);
+
+        $data['is_featured'] = $request->boolean('is_featured');
+
+        // จัดการไฟล์
+        $this->updateFile($request, $post, 'image', 'posts/images');
+        $this->updateFile($request, $post, 'pdf', 'posts/pdfs', $request->boolean('remove_pdf'));
+
+        $post->update($data);
+
+        return redirect()->route('admin.posts.index')->with('success', 'อัปเดตข่าวสำเร็จ');
+    }
+
+    /**
+     * ลบข่าวเดี่ยว
+     */
+    public function destroy(Post $post)
+    {
+        try {
+            $this->deleteFile($post->image_path);
+            $this->deleteFile($post->pdf_path);
+
+            $post->delete();
+
+            return redirect()->route('admin.posts.index')->with('success', 'ลบข่าวสำเร็จ');
+        } catch (\Exception $e) {
+            Log::error('Delete post error: ' . $e->getMessage());
+            return redirect()->route('admin.posts.index')->with('error', 'เกิดข้อผิดพลาดในการลบ');
+        }
+    }
+
+    /**
+     * ลบหลายข่าวพร้อมกัน
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:posts,id',
+        ]);
+
+        $posts = Post::whereIn('id', $request->ids)->get();
+
+        foreach ($posts as $post) {
+            $this->deleteFile($post->image_path);
+            $this->deleteFile($post->pdf_path);
+        }
+
+        $deletedCount = Post::destroy($request->ids);
+
+        return redirect()->route('admin.posts.index')->with('success', 'ลบ ' . $deletedCount . ' รายการสำเร็จ');
+    }
+
+    /** ----------------- Private Helper Methods ----------------- */
+
+    private function validatePost(Request $request): array
+    {
+        return $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'embed_link' => 'nullable|url|max:1000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'pdf' => 'nullable|file|mimes:pdf|max:10240',
-            'is_featured' => 'nullable|boolean', // Added
             'remove_pdf' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
         ]);
-
-        $updateData = [
-            'title' => $validated['title'],
-            'content' => $validated['content'],
-            'category_id' => $validated['category_id'],
-            'embed_link' => $validated['embed_link'],
-            'is_featured' => $request->boolean('is_featured'), // Added
-        ];
-
-        // Handle Image
-        if ($request->hasFile('image')) {
-            if ($post->image_path && Storage::disk('public')->exists($post->image_path)) {
-                Storage::disk('public')->delete($post->image_path);
-            }
-            $updateData['image_path'] = $request->file('image')->store('posts/images', 'public');
-        }
-
-        // Handle PDF
-        if ($request->hasFile('pdf')) {
-             if ($post->pdf_path && Storage::disk('public')->exists($post->pdf_path)) {
-                Storage::disk('public')->delete($post->pdf_path);
-            }
-            $updateData['pdf_path'] = $request->file('pdf')->store('posts/pdfs', 'public');
-        } elseif ($request->boolean('remove_pdf')) {
-             if ($post->pdf_path && Storage::disk('public')->exists($post->pdf_path)) {
-                Storage::disk('public')->delete($post->pdf_path);
-            }
-            $updateData['pdf_path'] = null;
-        }
-        // If neither new PDF nor remove checked, pdf_path remains unchanged
-
-        $post->update($updateData);
-
-        return redirect()->route('admin.posts.index')->with('success', 'อัปเดตข่าวสำเร็จ');
     }
 
-    /**
-     * ลบ Post (รองรับ AJAX จากปุ่ม Delete ปกติ)
-     */
-    public function destroy(Post $post)
+    private function actionButtons(Post $row): string
     {
-         try {
-            if ($post->image_path && Storage::disk('public')->exists($post->image_path)) {
-                Storage::disk('public')->delete($post->image_path);
-            }
-            if ($post->pdf_path && Storage::disk('public')->exists($post->pdf_path)) {
-                Storage::disk('public')->delete($post->pdf_path);
-            }
-            $post->delete();
+        $editUrl = route('admin.posts.edit', $row->id);
+        $deleteUrl = route('admin.posts.destroy', $row->id);
+        $csrf = csrf_token();
 
-            // ถ้าเป็นการเรียกผ่าน AJAX (เช่น จาก DataTables) ให้ส่ง JSON กลับ
-             if(request()->ajax()){
-                // อาจไม่จำเป็นถ้าใช้ onsubmit="confirm(...)" แล้ว redirect ผ่าน form
-                // แต่ถ้าทำ AJAX delete เต็มรูปแบบ จะส่ง JSON response
-                // return response()->json(['success' => 'ลบข่าวสำเร็จ']);
-             }
-            // ถ้าเป็นการเรียกปกติ (กด Submit Form) ให้ Redirect
-            return redirect()->route('admin.posts.index')->with('success', 'ลบข่าวสำเร็จ');
-
-         } catch (\Exception $e) {
-             Log::error('Delete post error: ' . $e->getMessage());
-              if(request()->ajax()){
-                 return response()->json(['error' => 'เกิดข้อผิดพลาดในการลบ'], 500);
-             }
-            return redirect()->route('admin.posts.index')->with('error', 'เกิดข้อผิดพลาดในการลบ: ' . $e->getMessage());
-         }
+        // [ปรับปรุง]
+        // - ลบ class="justify-start" (เพราะเป็น default ของ flex)
+        // - ลบ class="inline-block" ออกจาก form (เพราะ flex-container จัดการอยู่แล้ว)
+        return <<<HTML
+<div class="flex items-center space-x-3">
+    <a href="{$editUrl}" title="แก้ไข" class="text-indigo-600 hover:text-indigo-900 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/>
+        </svg>
+    </a>
+    <form action="{$deleteUrl}" method="POST" onsubmit="return confirm('ยืนยันการลบข่าวนี้?');">
+        <input type="hidden" name="_token" value="{$csrf}">
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit" title="ลบ" class="text-red-600 hover:text-red-900 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </form>
+</div>
+HTML;
     }
 
-    /**
-     * ลบ Posts หลายรายการพร้อมกัน (Bulk Delete)
-     */
-    public function bulkDestroy(Request $request)
+    private function storeFile(Request $request, string $field, string $path): ?string
     {
-        // Validate ว่ามี ids ส่งมา และเป็น array
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'integer|exists:posts,id', // เช็คว่าทุก id มีในตาราง posts
-        ]);
+        return $request->hasFile($field) ? $request->file($field)->store($path, 'public') : null;
+    }
 
-        $postIds = $request->input('ids');
-
-        if (empty($postIds)) {
-             return redirect()->route('admin.posts.index')->with('error', 'กรุณาเลือกรายการที่ต้องการลบ');
+    private function updateFile(Request $request, Post $post, string $field, string $path, bool $remove = false): void
+    {
+        if ($request->hasFile($field)) {
+            $this->deleteFile($post->{$field . '_path'});
+            $post->{$field . '_path'} = $request->file($field)->store($path, 'public');
+        } elseif ($remove) {
+            $this->deleteFile($post->{$field . '_path'});
+            $post->{$field . '_path'} = null;
         }
+    }
 
-        try {
-            // ดึงข้อมูล Posts ที่จะลบ เพื่อลบไฟล์ด้วย
-            $postsToDelete = Post::whereIn('id', $postIds)->get();
-
-            foreach ($postsToDelete as $post) {
-                // ลบรูปภาพ (ถ้ามี)
-                if ($post->image_path && Storage::disk('public')->exists($post->image_path)) {
-                    Storage::disk('public')->delete($post->image_path);
-                }
-                // ลบ PDF (ถ้ามี)
-                if ($post->pdf_path && Storage::disk('public')->exists($post->pdf_path)) {
-                    Storage::disk('public')->delete($post->pdf_path);
-                }
-            }
-
-            // ลบข้อมูลออกจากฐานข้อมูล
-            $deletedCount = Post::destroy($postIds); // destroy returns the number of records deleted
-
-            return redirect()->route('admin.posts.index')->with('success', 'ลบ ' . $deletedCount . ' รายการสำเร็จ');
-
-        } catch (\Exception $e) {
-            Log::error('Bulk delete posts error: ' . $e->getMessage()); // Log error
-            return redirect()->route('admin.posts.index')->with('error', 'เกิดข้อผิดพลาดในการลบข้อมูล: ' . $e->getMessage()); // Show error message
+    private function deleteFile(?string $filePath): void
+    {
+        if ($filePath && Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
         }
     }
 }
-
