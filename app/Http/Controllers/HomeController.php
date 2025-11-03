@@ -28,7 +28,7 @@ class HomeController extends Controller
         // Categories ที่มีข่าว พร้อมโหลด 3 ข่าวล่าสุดของแต่ละ Category
         $categoriesWithPosts = Category::whereHas('posts')
             ->with([
-                'posts' => fn($q) => $q->with('category')->latest()->take(3) // เพิ่ม with('category') ใน Eager Loading ซ้อน
+                'posts' => fn($q) => $q->with('category')->latest()->take(9) // เพิ่ม with('category') ใน Eager Loading ซ้อน
             ])
             ->orderBy('name')
             ->get();

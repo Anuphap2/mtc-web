@@ -1,12 +1,11 @@
 @props(['categoriesWithPosts'])
 
 @php
-    // แยก "กิจกรรมและประชาสัมพันธ์" ออกจากหมวดหมู่อื่นๆ
     [$prCollection, $otherCategories] = $categoriesWithPosts->partition(function ($category) {
         return $category->name === 'กิจกรรมและประชาสัมพันธ์';
     });
-
     $prCategory = $prCollection->first();
+    
 @endphp
 
 <section class="py-16 bg-gray-50">
@@ -16,10 +15,10 @@
         <div class="flex flex-col lg:flex-row lg:space-x-12">
 
             {{-- ================= Main Content ================= --}}
-            <div class="flex-1 space-y-12">
+            <div class="flex-1 space-y-8">
                 @if ($prCategory)
                     <div
-                        class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 transition-all hover:border-gray-300/80">
+                        class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 shadow-md hover:shadow-lg transition-shadow duration-300">
                         {{-- Header --}}
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl sm:text-3xl font-bold text-tech-slate-dark relative">
@@ -39,7 +38,7 @@
                         </div>
 
                         {{-- Grid Post Card --}}
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                             @foreach ($prCategory->posts as $post)
                                 <x-post-card :post="$post" />
                             @endforeach
@@ -49,11 +48,12 @@
             </div>
 
             {{-- ================= Sidebar ================= --}}
-            <div class="lg:w-1/3 flex flex-col space-y-12 mt-12 lg:mt-0">
+            <aside class="lg:w-1/3 flex flex-col space-y-10 mt-12 lg:mt-0">
                 @foreach ($otherCategories as $category)
-                    <div>
+                    <div
+                        class="bg-white rounded-2xl p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-bold text-tech-slate-dark">{{ $category->name }}</h2>
+                            <h3 class="text-lg md:text-xl font-bold text-tech-slate-dark">{{ $category->name }}</h3>
                             <a href="{{ route('category.show', $category) }}"
                                 class="text-sm text-tech-green font-semibold hover:underline">
                                 ดูทั้งหมด
@@ -63,14 +63,16 @@
                             @foreach ($category->posts as $post)
                                 <li>
                                     <a href="{{ route('post.show', $post) }}"
-                                        class="flex items-center group space-x-3 hover:text-tech-green transition-colors">
+                                        class="flex items-center space-x-3 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
                                         <img src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/placeholder.jpg') }}"
                                             alt="{{ $post->title }}"
                                             class="w-16 h-16 rounded-xl object-cover flex-shrink-0">
                                         <div>
-                                            <p class="text-base font-medium line-clamp-2">{{ $post->title }}</p>
+                                            <p
+                                                class="text-sm md:text-base font-medium line-clamp-2 text-gray-800 group-hover:text-tech-green">
+                                                {{ $post->title }}</p>
                                             <span
-                                                class="text-sm text-gray-500">{{ $post->created_at->format('d M Y') }}</span>
+                                                class="text-xs text-gray-500">{{ $post->created_at->format('d M Y') }}</span>
                                         </div>
                                     </a>
                                 </li>
@@ -78,8 +80,7 @@
                         </ul>
                     </div>
                 @endforeach
-            </div>
-
+            </aside>
 
         </div>
     </div>

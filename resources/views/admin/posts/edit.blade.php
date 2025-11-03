@@ -38,7 +38,7 @@
             <div class="mb-4 p-4 border border-dashed rounded-md">
                 <x-input-label for="image" :value="__('รูปภาพประกอบ (อัปโหลดใหม่ถ้าต้องการเปลี่ยน)')" class="mb-2 text-sm font-medium text-gray-700"/>
                 <input id="image" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" type="file" name="image" accept="image/*">
-                 <p class="mt-1 text-xs text-gray-500">รองรับ JPG, PNG, GIF ขนาดไม่เกิน 2MB</p>
+                 <p class="mt-1 text-xs text-gray-500">รองรับ JPG, PNG, GIF ขนาดไม่เกิน 10MB</p>
                 <x-input-error :messages="$errors->get('image')" class="mt-2" />
                 @if($post->image_path)
                     <div class="mt-4">

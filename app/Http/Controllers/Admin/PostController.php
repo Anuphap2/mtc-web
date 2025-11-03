@@ -25,49 +25,32 @@ class PostController extends Controller
      * ========================================================= */
     public function getPostsData(Request $request)
     {
-        if (!$request->ajax()) abort(403, 'Direct access forbidden.');
+        if (!$request->ajax())
+            abort(403, 'Direct access forbidden.');
 
         try {
-            // Cache category names for O(1) lookup
             $categories = Category::pluck('name', 'id');
-
-            // Query posts (no join needed)
             $query = Post::query()->select('posts.*');
 
             return DataTables::of($query)
                 ->addIndexColumn()
-
-                // Category Badge (O(1))
                 ->addColumn('category_name', fn($row) => isset($categories[$row->category_id])
                     ? "<span class='px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800'>"
-                        . e($categories[$row->category_id]) . "</span>"
+                    . e($categories[$row->category_id]) . "</span>"
                     : "<span class='px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800'>N/A</span>")
-
-                ->orderColumn('category_name', fn($query, $order) => 
+                ->orderColumn('category_name', fn($query, $order) =>
                     $query->join('categories', 'posts.category_id', '=', 'categories.id')
                         ->orderBy('categories.name', $order)
-                        ->select('posts.*')
-                )
-
-                // Image column (O(1))
+                        ->select('posts.*'))
                 ->addColumn('image', fn($row) => $row->image_path
                     ? "<img src='" . asset("storage/{$row->image_path}") . "' class='h-12 w-16 object-cover rounded-md shadow-sm'>"
-                    : "<span class='flex items-center justify-center h-12 w-16 bg-gray-50 rounded-md text-gray-400 text-xs italic'>ไม่มีรูป</span>"
-                )
-
-                // Featured Badge (O(1))
+                    : "<span class='flex items-center justify-center h-12 w-16 bg-gray-50 rounded-md text-gray-400 text-xs italic'>ไม่มีรูป</span>")
                 ->addColumn('featured', fn($row) =>
                     $row->is_featured
-                        ? "<span class='px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800'>เด่น</span>"
-                        : "<span class='px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600'>ทั่วไป</span>"
-                )
-
-                // Action buttons (O(1))
+                    ? "<span class='px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800'>เด่น</span>"
+                    : "<span class='px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600'>ทั่วไป</span>")
                 ->addColumn('action', fn($row) => $this->actionButtons($row))
-
-                // Date formatting
                 ->editColumn('created_at', fn($row) => $row->created_at?->translatedFormat('j M Y, H:i') ?? '-')
-
                 ->rawColumns(['action', 'image', 'featured', 'category_name'])
                 ->make(true);
         } catch (\Exception $e) {
@@ -89,6 +72,7 @@ class PostController extends Controller
     {
         $data = $this->validatePost($request);
 
+        // Upload files เก็บบน Server (storage/app/public)
         $data['image_path'] = $this->handleFile($request, null, 'image', 'posts/images');
         $data['pdf_path'] = $this->handleFile($request, null, 'pdf', 'posts/pdfs');
         $data['is_featured'] = $request->boolean('is_featured');
@@ -112,7 +96,7 @@ class PostController extends Controller
         $data = $this->validatePost($request);
         $data['is_featured'] = $request->boolean('is_featured');
 
-        // Update files (O(1) per file)
+        // อัปเดตไฟล์เก็บบน Server
         $post->image_path = $this->handleFile($request, $post, 'image', 'posts/images');
         $post->pdf_path = $this->handleFile($request, $post, 'pdf', 'posts/pdfs', $request->boolean('remove_pdf'));
 
@@ -145,11 +129,13 @@ class PostController extends Controller
             'ids.*' => 'integer|exists:posts,id',
         ]);
 
-        $posts = Post::whereIn('id', $request->ids)->get(['id','image_path','pdf_path']);
-        $posts->each(fn($p) => $this->deleteFile($p->image_path).$this->deleteFile($p->pdf_path));
+        $posts = Post::whereIn('id', $request->ids)->get(['image_path', 'pdf_path']);
+        foreach ($posts as $p) {
+            $this->deleteFile($p->image_path);
+            $this->deleteFile($p->pdf_path);
+        }
 
         $deletedCount = Post::destroy($request->ids);
-
         return redirect()->route('admin.posts.index')
             ->with('success', "ลบ {$deletedCount} รายการสำเร็จ");
     }
@@ -164,8 +150,8 @@ class PostController extends Controller
             'content' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'embed_link' => 'nullable|url|max:1000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'pdf' => 'nullable|file|mimes:pdf|max:10240',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240', // 10MB
+            'pdf' => 'nullable|file|mimes:pdf|max:10240', // รองรับ PDF 10MB
             'remove_pdf' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
         ]);
@@ -195,12 +181,21 @@ HTML;
 
     private function handleFile(Request $request, ?Post $post, string $field, string $folder, bool $remove = false): ?string
     {
-        $key = $field.'_path';
+        $key = $field . '_path';
+
+        // ถ้ามีไฟล์ใหม่อัปโหลด ให้ลบไฟล์เก่าแล้วเก็บไฟล์ใหม่
         if ($request->hasFile($field)) {
-            $this->deleteFile($post?->{$key} ?? null);
+            $this->deleteFile($post?->{$key});
             return $request->file($field)->store($folder, 'public');
         }
-        if ($remove) $this->deleteFile($post?->{$key} ?? null);
+
+        // ลบไฟล์เก่า
+        if ($remove) {
+            $this->deleteFile($post?->{$key});
+            return null;
+        }
+
+        // ไม่แก้ไขไฟล์
         return $post?->{$key} ?? null;
     }
 
