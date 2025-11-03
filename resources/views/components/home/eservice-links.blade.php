@@ -12,7 +12,7 @@
         ],
         [
             'name' => 'EDR',
-            'url' => 'https://edr.dbtmaesod.com',
+            'url' => 'https://maesod.appedr.com/edr/login.do',
             'icon_color_class' => 'text-blue-600',
             'bg_color_class' => 'bg-blue-100',
             'border_color_class' => 'border-blue-200',

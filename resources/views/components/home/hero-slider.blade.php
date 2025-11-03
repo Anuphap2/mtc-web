@@ -3,11 +3,13 @@
 {{-- =========================================================
     SECTION 1: HERO SLIDER (Redesign: Full-Width)
 ========================================================== --}}
-@if ($featuredPosts?->count())
+
+{{-- [REFINEMENT] ใช้ @unless...isEmpty() เพื่อเช็ค Collection ที่สื่อความหมายชัดเจนกว่า --}}
+@unless ($featuredPosts->isEmpty())
 
     <section class="relative w-full py-2">
 
-        <div class="swiper mySwiper h-[600px] lg:h-[750px] overflow-hidden relative group">
+        <div class="swiper mySwiper h-[600px] lg:h-[600px] overflow-hidden relative group">
 
             <div class="swiper-wrapper">
                 @foreach ($featuredPosts as $featured)
@@ -39,20 +41,23 @@
                 @endforeach
             </div>
 
-            <div
-                class="swiper-button-prev absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/20 hover:bg-white/50 flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100">
+            {{-- [REFINEMENT] เปลี่ยน <div> เป็น <button> และเพิ่ม aria-label เพื่อ Accessibility --}}
+            <button type="button"
+                class="swiper-button-prev absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/20 hover:bg-white/50 flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100"
+                aria-label="Previous slide">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                    stroke="currentColor" class="w-6 h-6 text-white">
+                    stroke="currentColor" class="w-6 h-6 text-white" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                 </svg>
-            </div>
-            <div
-                class="swiper-button-next absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/20 hover:bg-white/50 flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100">
+            </button>
+            <button type="button"
+                class="swiper-button-next absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/20 hover:bg-white/50 flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100"
+                aria-label="Next slide">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                    stroke="currentColor" class="w-6 h-6 text-white">
+                    stroke="currentColor" class="w-6 h-6 text-white" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                 </svg>
-            </div>
+            </button>
 
             <div class="swiper-pagination !bottom-5 !left-1/2 !-translate-x-1/2 !w-auto z-10"></div>
         </div>
@@ -84,4 +89,4 @@
             });
         </script>
     @endpush
-@endif
+@endunless
