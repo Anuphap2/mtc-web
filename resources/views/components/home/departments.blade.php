@@ -126,36 +126,69 @@
 ========================================================== --}}
 <section class="py-14 bg-tech-slate-light">
     <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="relative inline-block mb-12 text-center w-full">
+
+        {{-- Header (Left-aligned) --}}
+        <div class="mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-tech-slate-dark">สาขาวิชา</h2>
             <p class="mt-2 text-lg text-gray-600">เลือกเส้นทางอาชีพที่เหมาะกับคุณ</p>
-            <div class="absolute bottom-[-10px] left-1/2 -translate-x-1/2 h-1 w-24 bg-tech-green rounded-full">
-            </div>
+            {{-- เส้นคั่น --}}
+            <div class="mt-4 h-1 w-24 bg-tech-green rounded-full"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-5">
+        {{-- 
+            Grid Layout (Replaces Swiper)
+            - 1 คอลัมน์บนมือถือ (sm)
+            - 2 คอลัมน์บนแท็บเล็ต (md)
+            - 4 คอลัมน์บนเดสก์ท็อป (lg)
+        --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-            {{-- วนลูปข้อมูลสาขาจาก Array --}}
+            {{-- 
+                สมมติว่า $departments เป็น array/collection
+                ถ้า $dept เป็น object ให้ใช้ $dept->name
+                ถ้าเป็น array ให้ใช้ $dept['name'] (โค้ดเดิมของคุณพู่กันใช้ array)
+            --}}
             @foreach ($departments as $dept)
-                <div class="relative p-6 bg-white rounded-2xl shadow-lg transition-shadow hover:shadow-xl h-full">
+                {{-- 
+                    1. ใช้ <a> ครอบทั้งหมดเป็นการ์ด
+                    2. ใช้ 'group' เพื่อให้ hover effect (เช่น ลูกศร) ทำงาน
+                --}}
+                <a class="group block h-full">
 
-                    <div class="absolute top-0 right-0 -mt-5 mr-3">
+                    {{-- 
+                        Card UI (New Design)
+                        - h-full เพื่อให้การ์ดสูงเท่ากัน
+                        - transition-all, hover:-translate-y-1, hover:shadow-xl คือ hover effect
+                    --}}
+                    <div
+                        class="relative p-6 bg-white rounded-2xl shadow-lg h-full
+                                transition-all duration-300 ease-in-out 
+                                hover:shadow-xl hover:-translate-y-1">
+
+                        {{-- Icon (ย้ายมาไว้ข้างใน) --}}
                         <div
-                            class="flex items-center justify-center w-16 h-16 rounded-full border-4 border-tech-slate-light {{ $dept['bg_color_class'] }}">
+                            class="mb-4 flex items-center justify-center w-16 h-16 rounded-full {{ $dept['bg_color_class'] }}">
                             <svg class="w-8 h-8 {{ $dept['icon_color_class'] }}" fill="none" stroke="currentColor"
                                 stroke-width="2" viewBox="0 0 24 24">
                                 {!! $dept['svg_path'] !!}
                             </svg>
                         </div>
-                    </div>
 
-                    <div class="pt-8"> {{-- เพิ่ม pt-8 เพื่อให้มีที่ว่างใต้ไอคอน --}}
-                        <h3 class="text-xl font-bold text-tech-slate-dark mb-1">{{ $dept['name'] }}</h3>
-                        <p class="text-sm text-gray-600">{{ $dept['description'] }}</p>
+                        {{-- Content --}}
+                        <div class="pt-4">
+                            <h3 class="text-lg md:text-xl font-bold text-tech-slate-dark mb-1">
+                                {{ $dept['name'] }}
+                            </h3>
+                            <p class="text-sm text-gray-600 line-clamp-3"> {{-- กันข้อความยาว --}}
+                                {{ $dept['description'] }}
+                            </p>
+                        </div>
+
+
                     </div>
-                </div>
+                </a>
             @endforeach
 
-        </div>
-    </div>
+        </div> {{-- End Grid --}}
+    </div> {{-- End Container --}}
 </section>
