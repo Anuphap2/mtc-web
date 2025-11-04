@@ -186,7 +186,14 @@ HTML;
         // ถ้ามีไฟล์ใหม่อัปโหลด ให้ลบไฟล์เก่าแล้วเก็บไฟล์ใหม่
         if ($request->hasFile($field)) {
             $this->deleteFile($post?->{$key});
-            return $request->file($field)->store($folder, 'public');
+
+            $file = $request->file($field);
+            $fileName = time() . '_' . $file->getClientOriginalName();
+
+            // ย้ายไฟล์ไป public/storage/...
+            $file->move(public_path("storage/{$folder}"), $fileName);
+
+            return "{$folder}/{$fileName}";
         }
 
         // ลบไฟล์เก่า
@@ -201,8 +208,8 @@ HTML;
 
     private function deleteFile(?string $filePath): void
     {
-        if ($filePath && Storage::disk('public')->exists($filePath)) {
-            Storage::disk('public')->delete($filePath);
+        if ($filePath && file_exists(public_path("storage/{$filePath}"))) {
+            unlink(public_path("storage/{$filePath}"));
         }
     }
 }
