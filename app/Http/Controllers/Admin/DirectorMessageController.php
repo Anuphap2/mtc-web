@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\DirectorMessage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class DirectorMessageController extends Controller
 {
@@ -26,19 +25,21 @@ class DirectorMessageController extends Controller
 
         $director = DirectorMessage::first();
 
-        // ✅ ถ้ามีการอัปโหลดรูปใหม่
         if ($request->hasFile('image')) {
 
-            // 🔹 ลบรูปเก่าก่อน (ถ้ามีอยู่)
-            if ($director && $director->image && Storage::disk('public')->exists($director->image)) {
-                Storage::disk('public')->delete($director->image);
+            // ลบรูปเก่า ถ้ามี
+            if ($director && $director->image && file_exists(public_path('storage/' . $director->image))) {
+                unlink(public_path('storage/' . $director->image));
             }
 
-            // 🔹 บันทึกรูปใหม่
-            $validated['image'] = $request->file('image')->store('director', 'public');
+            // บันทึกรูปใหม่ตรง public/storage/director
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('storage/director'), $imageName);
+
+            $validated['image'] = 'director/' . $imageName;
         }
 
-        // ✅ อัปเดตหรือสร้างใหม่
         if ($director) {
             $director->update($validated);
         } else {
