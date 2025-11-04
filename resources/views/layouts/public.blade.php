@@ -21,8 +21,8 @@
     {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
-        as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 
 
     <link rel="preload" href="{{ asset('build/assets/app-B8F3QX7X.css') }}" as="style">
@@ -65,8 +65,7 @@
                 <div class="flex justify-between items-center h-20">
                     {{-- Logo --}}
                     <a href="{{ route('home') }}" class="flex items-center space-x-3">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo MTC" width="200" height="60"
-                            loading="lazy">
+                        <img class="h-14 w-auto" src="{{ asset('images/logo.png') }}" alt="Logo MTC" loading="lazy">
                         <span class="font-bold text-lg text-tech-slate-dark">วิทยาลัยเทคนิคแม่สอด</span>
                     </a>
 
