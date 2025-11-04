@@ -1,4 +1,30 @@
 <x-public-layout>
+    <style>
+        .prose a {
+            color: #2563eb;
+
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .prose a::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background-color: #2563eb;
+            /* Tailwind: blue-600 */
+            transition: width 0.3s ease;
+        }
+
+        .prose a:hover::after {
+            width: 100%;
+        }
+    </style>
+
+
     {{-- พื้นหลังสีเทาอ่อน --}}
     <div class="bg-tech-slate-light py-8 sm:py-12">
         {{-- การ์ดสีขาวสำหรับเนื้อหา --}}
@@ -44,9 +70,11 @@
 
                     {{-- [ปรับปรุง] 2. ส่วนเนื้อหา: ใช้ {!! !!} (ถ้ามั่นใจว่า Sanitize แล้ว) + prose-lg + แต่งสีลิงก์ --}}
                     <div
-                        class="prose prose-lg max-w-none text-gray-700 prose-a:text-tech-green-dark hover:prose-a:underline">
-                        {{-- ใช้ {!! $post->content !!} ถ้าเนื้อหาเป็น HTML จาก Editor ที่ Sanitize แล้ว --}}
-                        {{-- ถ้าเป็น Text ธรรมดา ใช้ {!! nl2br(e($post->content)) !!} เหมือนเดิม --}}
+                        class="prose prose-lg max-w-none text-gray-700
+           prose-a:text-blue-600 prose-a:no-underline
+           hover:prose-a:underline hover:prose-a:text-blue-800
+           prose-img:rounded-lg prose-img:shadow-md
+           break-words">
                         {!! $post->content !!}
                     </div>
 
@@ -68,44 +96,7 @@
                         </div>
                     @endif
 
-                    {{-- ส่วน Embed Link --}}
-                    @if ($post->embed_link)
-                        <hr class="my-6 border-gray-200">
-                        <h3 class="text-xl font-semibold mb-4 text-tech-slate-dark">ไฟล์แนบ (วิดีโอ/โพสต์)</h3>
-                        @php
-                            // (โค้ด PHP สำหรับ embed ของคุณเหมือนเดิม)
-                            $embedHtml = '';
-                            if (Str::contains($post->embed_link, ['youtube.com', 'youtu.be'])) {
-                                preg_match(
-                                    '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i',
-                                    $post->embed_link,
-                                    $matches,
-                                );
-                                $youtubeId = $matches[1] ?? null;
-                                if ($youtubeId) {
-                                    $embedHtml =
-                                        '<iframe class="w-full aspect-video rounded-lg shadow-md" src="https://www.youtube.com/embed/' . // Added shadow-md
-                                        $youtubeId .
-                                        '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-                                }
-                            } elseif (Str::contains($post->embed_link, 'facebook.com')) {
-                                $embedHtml =
-                                    '<div class="fb-post" data-href="' .
-                                    e($post->embed_link) .
-                                    '" data-show-text="true" data-width="auto"></div>';
-                            }
-                        @endphp
 
-                        @if ($embedHtml)
-                            <div class="w-full">
-                                {!! $embedHtml !!}
-                            </div>
-                        @else
-                            <p class="text-gray-600">ไม่รองรับการแสดงผลลิงก์นี้: <a href="{{ $post->embed_link }}"
-                                    target="_blank"
-                                    class="text-tech-green-dark hover:underline">{{ $post->embed_link }}</a></p>
-                        @endif
-                    @endif
 
 
                     {{-- [ปรับปรุง] 3. ข่าวที่เกี่ยวข้อง: ใช้ <x-post-card> --}}
