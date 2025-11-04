@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'วิทยาลัยเทคนิคแม่สอด' }}</title>
+    <meta name="description"
+        content="วิทยาลัยเทคนิคแม่สอด แหล่งรวมข่าวสาร กิจกรรม และข้อมูลการศึกษา สำหรับนักเรียนและประชาชน">
+    <meta name="keywords" content="วิทยาลัย, แม่สอด, การศึกษา, ข่าวสาร, กิจกรรม">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="วิทยาลัยเทคนิคแม่สอด">
+    <meta property="og:description" content="ข่าวสาร กิจกรรม และข้อมูลการศึกษา">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('images/logo.png') }}">
 
     {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
