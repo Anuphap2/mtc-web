@@ -144,6 +144,15 @@
                 quill.root.addEventListener('paste', (e) => {
                     const text = (e.clipboardData || window.clipboardData).getData('text');
 
+
+                    if (text.match(/drive\.google\.com\/drive\/folders/)) {
+                        const folderId = text.split('/folders/')[1].split('?')[0];
+                        const embedUrl = `https://drive.google.com/embeddedfolderview?id=${folderId}#list`;
+                        const range = quill.getSelection(true);
+                        quill.insertEmbed(range.index, 'iframe', embedUrl, Quill.sources.USER);
+                        quill.setSelection(range.index + 1);
+                        return;
+                    }
                     // YouTube
                     if (text.match(/(youtube\.com|youtu\.be)/)) {
                         e.preventDefault();
