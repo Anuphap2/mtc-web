@@ -7,26 +7,30 @@
 
             <div class="mb-4">
                 <x-input-label for="name" :value="__('Name')" />
-                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required />
+                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')"
+                    required />
                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
             </div>
 
             <div class="mb-4">
-                <x-input-label for="url" :value="__('URL (เช่น /contact-us หรือ # สำหรับ Dropdown)')" />
-                <x-text-input id="url" class="block mt-1 w-full" type="text" name="url" :value="old('url')" required />
+                <x-input-label for="url" value="URL (เช่น /contact-us หรือ # สำหรับ Dropdown)" />
+                <x-text-input id="url" class="block mt-1 w-full" type="text" name="url" :value="old('url')"
+                    required />
                 <x-input-error :messages="$errors->get('url')" class="mt-2" />
             </div>
 
             <div class="mb-4">
                 <x-input-label for="order" :value="__('ลำดับ (Order)')" />
-                <x-text-input id="order" class="block mt-1 w-full" type="number" name="order" :value="old('order', 0)" required />
+                <x-text-input id="order" class="block mt-1 w-full" type="number" name="order" :value="old('order', 0)"
+                    required />
                 <x-input-error :messages="$errors->get('order')" class="mt-2" />
             </div>
 
             {{-- --- เพิ่มส่วนนี้ --- --}}
             <div class="mb-4">
                 <x-input-label for="parent_id" :value="__('เมนูหลัก (Parent Menu - ถ้ามี)')" />
-                <select name="parent_id" id="parent_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                <select name="parent_id" id="parent_id"
+                    class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                     <option value="">-- ไม่มี (เมนูหลัก) --</option> {{-- ค่าว่างคือ parent_id = NULL --}}
                     @foreach ($parentMenus as $parent)
                         <option value="{{ $parent->id }}" {{ old('parent_id') == $parent->id ? 'selected' : '' }}>
