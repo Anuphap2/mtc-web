@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController; // Make sure this is imported
 use App\Http\Controllers\Admin; // Import Admin namespace
-
+use App\Http\Controllers\Admin\DirectorMessageController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -55,14 +55,9 @@ Route::middleware(['auth', /* 'admin' */])->prefix('admin')->name('admin.')->gro
     // --- Add Routes for DataTables and Bulk Delete ---
     Route::get('posts-data', [Admin\PostController::class, 'getPostsData'])->name('posts.data');
     Route::delete('posts/bulk-destroy', [Admin\PostController::class, 'bulkDestroy'])->name('posts.bulkDestroy');
-    // Add similar routes for categories, menus, users data and bulk delete if needed
-    // Route::get('categories-data', [Admin\CategoryController::class, 'getData'])->name('categories.data');
-    // Route::delete('categories/bulk-destroy', [Admin\CategoryController::class, 'bulkDestroy'])->name('categories.bulkDestroy');
-    // Route::get('menus-data', [Admin\MenuController::class, 'getData'])->name('menus.data');
-    // Route::delete('menus/bulk-destroy', [Admin\MenuController::class, 'bulkDestroy'])->name('menus.bulkDestroy');
-    // Route::get('users-data', [Admin\UserController::class, 'getData'])->name('users.data');
-    // Route::delete('users/bulk-destroy', [Admin\UserController::class, 'bulkDestroy'])->name('users.bulkDestroy');
-    // --- End ---
+
+    Route::get('/director/edit', [DirectorMessageController::class, 'edit'])->name('director.edit');
+    Route::put('/director/update', [DirectorMessageController::class, 'update'])->name('director.update');
 
 });
 

@@ -1,18 +1,50 @@
 @props(['categoriesWithPosts'])
 
 @php
-    $mainOrder = ['ประกาศวิทยาลัยเทคนิคแม่สอด', 'กิจกรรมและประชาสัมพันธ์'];
+    /**
+     * ---------------------------------------------------------
+     * ตั้งค่าลำดับหมวดหมู่ที่จะแสดงผล
+     * ---------------------------------------------------------
+     */
+    $mainOrder = [5, 1]; // Main Content: [5] ประกาศ, [1] กิจกรรม
+    $sidebarOrder = [2, 4]; // Sidebar: [2] ข่าวประชาสัมพันธ์, [4] ITA
 
-    // แยกหมวดหลักออกจากหมวดอื่น
-    [$mainCategories, $otherCategories] = $categoriesWithPosts->partition(function ($category) use ($mainOrder) {
-        return in_array($category->name, $mainOrder);
-    });
+    /**
+     * ---------------------------------------------------------
+     * ฟังก์ชันช่วย: ใช้สำหรับเรียง Collection ตามลำดับที่กำหนด
+     * ---------------------------------------------------------
+     */
+    $sortByOrder = function ($collection, $order) {
+        return $collection->sortBy(fn($item) => array_search($item->id, $order));
+    };
 
-    // เรียงลำดับหมวดหลักตาม array ด้านบน
-    $mainCategories = $mainCategories->sortBy(function ($category) use ($mainOrder) {
-        return array_search($category->name, $mainOrder);
-    });
+    /**
+     * ---------------------------------------------------------
+     * แยกหมวดหมู่หลักออกจากหมวดอื่น
+     * ---------------------------------------------------------
+     */
+    [$mainCategories, $remainingCategories] = $categoriesWithPosts->partition(
+        fn($category) => in_array($category->id, $mainOrder),
+    );
+
+    /**
+     * ---------------------------------------------------------
+     * แยกหมวด Sidebar ออกมา (เฉพาะที่เลือกไว้)
+     * ---------------------------------------------------------
+     */
+    [$sidebarCategories, $otherCategories] = $remainingCategories->partition(
+        fn($category) => in_array($category->id, $sidebarOrder),
+    );
+
+    /**
+     * ---------------------------------------------------------
+     * เรียงลำดับหมวดหมู่ให้ตรงตามที่กำหนด
+     * ---------------------------------------------------------
+     */
+    $mainCategories = $sortByOrder($mainCategories, $mainOrder);
+    $sidebarCategories = $sortByOrder($sidebarCategories, $sidebarOrder);
 @endphp
+
 
 <section class="py-16 bg-gray-50">
     <div class="container mx-auto max-w-7xl px-6 lg:px-12">
@@ -54,7 +86,7 @@
 
             {{-- ================= Sidebar ================= --}}
             <aside class="lg:w-1/3 flex flex-col space-y-10 mt-12 lg:mt-0">
-                @foreach ($otherCategories as $category)
+                @foreach ($sidebarCategories as $category)
                     <div
                         class="bg-white rounded-2xl p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div class="flex justify-between items-center mb-4">
@@ -89,6 +121,20 @@
                 @endforeach
             </aside>
 
+        </div>
+    </div>
+
+    <div class="container mx-auto max-w-7xl py-6 px-6 lg:px-12">
+        <h2 class="text-2xl font-bold text-tech-slate-dark mb-6">
+            หมวดหมู่ข่าวทั้งหมด
+        </h2>
+        <div class="flex flex-wrap gap-3">
+            @foreach ($categoriesWithPosts as $category)
+                <a href="{{ route('category.show', $category) }}"
+                    class="inline-block bg-gray-100 hover:bg-tech-green hover:text-white text-gray-700 text-sm font-medium px-4 py-2 rounded-full transition-colors duration-200">
+                    {{ $category->name }}
+                </a>
+            @endforeach
         </div>
     </div>
 </section>

@@ -3,7 +3,6 @@
     {{-- 1. HERO SLIDER --}}
     <x-home.hero-slider :featuredPosts="$featuredPosts" />
 
-
     {{-- 2. DIRECTOR'S WELCOME --}}
     <x-home.director-welcome />
 
