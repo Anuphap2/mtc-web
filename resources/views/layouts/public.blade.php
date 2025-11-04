@@ -21,7 +21,14 @@
     {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+        as="style">
+
+
+    <link rel="preload" href="{{ asset('build/assets/app-B8F3QX7X.css') }}" as="style">
+    <link rel="stylesheet" href="{{ asset('build/assets/app-B8F3QX7X.css') }}">
+    <script src="{{ asset('build/assets/app-CXDpL9bK.js') }}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
 
     {{-- Tailwind + Vite --}}
     <link rel="stylesheet" href="{{ asset('build/assets/app-B8F3QX7X.css') }}">
@@ -31,7 +38,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     {{-- Facebook SDK --}}
-    <div id="fb-root"></div>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v18.0">
     </script>
 
@@ -59,7 +65,8 @@
                 <div class="flex justify-between items-center h-20">
                     {{-- Logo --}}
                     <a href="{{ route('home') }}" class="flex items-center space-x-3">
-                        <img class="h-14 w-auto" src="{{ asset('images/logo.png') }}" alt="Logo MTC">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo MTC" width="200" height="60"
+                            loading="lazy">
                         <span class="font-bold text-lg text-tech-slate-dark">วิทยาลัยเทคนิคแม่สอด</span>
                     </a>
 
@@ -269,6 +276,7 @@
             </div>
         </footer>
     </div>
+    <div id="fb-root"></div>
 
     {{-- Swiper JS --}}
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
