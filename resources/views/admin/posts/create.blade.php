@@ -81,7 +81,7 @@
                 const BlockEmbed = Quill.import('blots/block/embed');
                 const Delta = Quill.import('delta');
 
-                // ✅ สร้าง custom blot สำหรับ iframe
+                // ✅ Custom blot สำหรับ iframe
                 class IframeBlot extends BlockEmbed {
                     static create(value) {
                         const node = super.create();
@@ -114,7 +114,7 @@
                             }, {
                                 list: 'bullet'
                             }],
-                            ['link'],
+                            ['link', 'image'], // <-- เพิ่มปุ่ม image
                             [{
                                 align: []
                             }],
@@ -126,7 +126,7 @@
                     }
                 });
 
-                // ✅ อนุญาตให้ paste iframe ได้ตรง ๆ
+                // ✅ อนุญาต paste iframe
                 quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
                     if (node.tagName === 'IFRAME') {
                         const src = node.getAttribute('src');
@@ -137,36 +137,22 @@
                     return delta;
                 });
 
-                quill.root.addEventListener('paste', (e) => {
-                    if (e.clipboardData && [...e.clipboardData.items].some(item => item.type.includes(
-                            'image'))) {
-                        e.preventDefault();
-                        alert('❌ ไม่อนุญาตให้นำเข้ารูปภาพ');
-                    }
-                });
+                // ✅ อนุญาตรูปภาพ ปรับ event listener สำหรับ paste/drop
+                // Remove the previous e.preventDefault() alerts for images
 
-                quill.root.addEventListener('drop', (e) => {
-                    if ([...e.dataTransfer.items].some(item => item.type.includes('image'))) {
-                        e.preventDefault();
-                        alert('❌ ไม่อนุญาตให้นำเข้ารูปภาพ');
-                    }
-                });
-
-                // ✅ ตรวจจับการวางลิงก์
+                // ✅ ตรวจจับ YouTube / Facebook links (เดิม)
                 quill.root.addEventListener('paste', (e) => {
                     const text = (e.clipboardData || window.clipboardData).getData('text');
 
-                    // ---- YouTube ----
+                    // YouTube
                     if (text.match(/(youtube\.com|youtu\.be)/)) {
                         e.preventDefault();
-
                         let videoId = '';
                         if (text.includes('youtu.be')) {
                             videoId = text.split('youtu.be/')[1].split(/[?&]/)[0];
                         } else if (text.includes('v=')) {
                             videoId = text.split('v=')[1].split('&')[0];
                         }
-
                         const embedUrl = `https://www.youtube.com/embed/${videoId}`;
                         const range = quill.getSelection(true);
                         quill.insertEmbed(range.index, 'iframe', embedUrl, Quill.sources.USER);
@@ -174,23 +160,18 @@
                         return;
                     }
 
-                    // ---- Facebook (post / video) ----
+                    // Facebook
                     if (text.match(/facebook\.com/)) {
                         e.preventDefault();
-
                         const encoded = encodeURIComponent(text);
                         let embedUrl = '';
-
-                        // ถ้ามี watch?v= → เป็น video
                         if (text.includes('/watch') || text.includes('/videos/')) {
                             embedUrl =
                                 `https://www.facebook.com/plugins/video.php?href=${encoded}&show_text=false&width=500`;
                         } else {
-                            // เป็นโพสต์ปกติ
                             embedUrl =
                                 `https://www.facebook.com/plugins/post.php?href=${encoded}&show_text=true&width=500`;
                         }
-
                         const range = quill.getSelection(true);
                         quill.insertEmbed(range.index, 'iframe', embedUrl, Quill.sources.USER);
                         quill.setSelection(range.index + 1);
