@@ -225,55 +225,80 @@
         {{-- Footer --}}
         <footer class="bg-tech-slate-dark text-gray-300 mt-8">
             <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div class="md:col-span-2">
-                        <h5 class="text-lg font-semibold text-white mb-3">วิทยาลัยเทคนิคแม่สอด</h5>
-                        <p class="text-sm">เลขที่ 133 หมู่ 8 ถนนแม่สอด-แม่ระมาด ต.แม่ปะ อ.แม่สอด จ.ตาก 63110</p>
-                        <p class="text-sm mt-2">โทร: 055-531-180 | อีเมล: maesot.tec@ms.vec.go.th</p>
 
-                        {{-- [ปรับปรุง] 6. เพิ่ม Social Icons --}}
-                        <div class="flex space-x-4 mt-6">
-                            <a href="https://www.facebook.com/MTC.Maesot" target="_blank" rel="noopener"
-                                class="text-gray-400 hover:text-white transition-colors" title="Facebook">
-                                <span class="sr-only">Facebook</span>
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.81C10.44 7.31 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96C18.34 21.21 22 17.06 22 12.06C22 6.53 17.5 2.04 12 2.04Z">
-                                    </path>
-                                </svg>
-                            </a>
-                            <a href="https://www.youtube.com/@mtcchannel134" target="_blank" rel="noopener"
-                                class="text-gray-400 hover:text-white transition-colors" title="YouTube">
-                                <span class="sr-only">YouTube</span>
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136C4.495 20.455 12 20.455 12 20.455s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z">
-                                    </path>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
+                {{-- Footer Content --}}
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+                    {{-- ข้อมูลติดต่อ --}}
                     <div>
-                        <h5 class="text-base font-semibold text-gray-200 mb-3">เกี่ยวกับ</h5>
+                        <h5 class="text-lg font-semibold text-white mb-3">ข้อมูลติดต่อ</h5>
+                        <p class="text-sm"><i class="fas fa-map-marker-alt mr-1"></i> หมู่ที่ 10 ถนนสายแม่สอด-แม่ปะใต้
+                            ตำบลแม่ปะ, Maesod, Tak 63110</p>
+                        <p class="text-sm mt-1"><i class="fas fa-phone mr-1"></i> โทรศัพท์: 055-532-644</p>
+                        <p class="text-sm mt-1"><i class="fas fa-fax mr-1"></i> โทรสาร: 055-532-644</p>
+                        {{-- <p class="text-sm mt-1"><i class="fas fa-envelope mr-1"></i> อีเมล: example@email.com</p> --}}
+                    </div>
+
+                    {{-- ลิงค์หน่วยงานภายนอก --}}
+                    <div>
+                        <h5 class="text-lg font-semibold text-white mb-3">ลิงค์หน่วยงานภายนอก</h5>
                         <ul class="space-y-2 text-sm">
-                            <li><a href="#" class="hover:text-white hover:underline">ประวัติ</a></li>
-                            <li><a href="#" class="hover:text-white hover:underline">ติดต่อเรา</a></li>
+                            <li><a href="http://www.vec.go.th/" target="_blank"
+                                    class="hover:text-white hover:underline">สำนักงานคณะกรรมการการอาชีวศึกษา</a></li>
+                            <li><a href="http://www.vec.go.th/boga/%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A3%E0%B8%81.aspx"
+                                    target="_blank" class="hover:text-white hover:underline">สำนักอำนวยการ</a></li>
+                            <li><a href="http://bpcd.vec.go.th/" target="_blank"
+                                    class="hover:text-white hover:underline">สำนักพัฒนาสมรรถนะครูและบุคลากรอาชีวศึกษา</a>
+                            </li>
+                            <li><a href="https://www.studentloan.or.th/" target="_blank"
+                                    class="hover:text-white hover:underline">กองทุนกู้ยืมเพื่อการศึกษา</a></li>
                         </ul>
                     </div>
+
+                    {{-- ระบบงานออนไลน์ --}}
                     <div>
-                        <h5 class="text-base font-semibold text-gray-200 mb-3">หลักสูตร</h5>
+                        <h5 class="text-lg font-semibold text-white mb-3">ระบบงานออนไลน์</h5>
                         <ul class="space-y-2 text-sm">
-                            <li><a href="#" class="hover:text-white hover:underline">ปวช.</a></li>
-                            <li><a href="#" class="hover:text-white hover:underline">ปวส.</a></li>
+                            <li><a href="/maesod/detailsnews?ids=202"
+                                    class="hover:text-white hover:underline">ระบบรับสมัครนักเรียนนักศึกษาวิทยาลัยเทคนิคแม่สอด</a>
+                            </li>
+                            <li><a href="/maesod/detailsnews?ids=201"
+                                    class="hover:text-white hover:underline">ระบบฐานข้อมูลอาชีวศึกษา</a></li>
+                            <li><a href="/maesod/detailsnews?ids=200"
+                                    class="hover:text-white hover:underline">ระบบติดตามผู้เรียนสำหรับครูและเจ้าหน้าที่</a>
+                            </li>
+                            <li><a href="/maesod/detailsnews?ids=199"
+                                    class="hover:text-white hover:underline">ระบบติดตามผู้เรียนสำหรับนักเรียน/นักศึกษา</a>
+                            </li>
+                            <li><a href="/maesod/detailsnews?ids=198"
+                                    class="hover:text-white hover:underline">ระบบติดตามผู้เรียนสำหรับผู้ปกครอง</a></li>
                         </ul>
                     </div>
-                </div>
+
+                    {{-- อาชีวศึกษาจังหวัดตาก --}}
+                    <div>
+                        <h5 class="text-lg font-semibold text-white mb-3">อาชีวศึกษาจังหวัดตาก</h5>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="http://www.maesod.ac.th" target="_blank"
+                                    class="hover:text-white hover:underline">วิทยาลัยเทคนิคแม่สอด</a></li>
+                            <li><a href="http://www.taktc.ac.th/" target="_blank"
+                                    class="hover:text-white hover:underline">วิทยาลัยเทคนิคตาก</a></li>
+                            <li><a href="http://www.bantak.ac.th/" target="_blank"
+                                    class="hover:text-white hover:underline">วิทยาลัยการอาชีพบ้านตาก</a></li>
+                            <li><a href="http://www.kasettak.ac.th/" target="_blank"
+                                    class="hover:text-white hover:underline">วิทยาลัยเกษตรและเทคโนโลยีตาก</a></li>
+                        </ul>
+                    </div>
+
+                </div> {{-- End Footer Content --}}
+
                 <hr class="border-gray-700 my-8">
-                <div class="text-center text-sm">&copy; {{ date('Y') }} วิทยาลัยเทคนิคแม่สอด. สงวนลิขสิทธิ์.</div>
+
+                <div class="text-center text-sm">&copy; 2568 วิทยาลัยเทคนิคแม่สอด | สงวนลิขสิทธิ์ทุกประการ</div>
+
             </div>
         </footer>
+
     </div>
     <div id="fb-root"></div>
 

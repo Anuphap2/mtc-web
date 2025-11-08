@@ -31,11 +31,11 @@
         <div class="container mx-auto max-w-4xl px-0 sm:px-6 lg:px-8">
             <div class="bg-white rounded-lg shadow-xl overflow-hidden">
 
-                {{-- รูปภาพ Header --}}
-                @if ($post->image_path)
-                    <img class="h-96 w-full object-cover" src="{{ Storage::url($post->image_path) }}"
-                        alt="{{ $post->title }}">
-                @endif
+
+                <img class="w-full h-96 object-cover"
+                    src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/nopic.png') }}"
+                    alt="{{ $post->title }}" loading="lazy">
+
 
                 <div class="p-6 md:p-10">
 

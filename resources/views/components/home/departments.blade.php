@@ -127,47 +127,26 @@
 <section class="py-14 bg-tech-slate-light">
     <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {{-- Header (Left-aligned) --}}
-        <div class="mb-12">
+        {{-- Header --}}
+        <div class="mb-12 text-center lg:text-left">
             <h2 class="text-3xl md:text-4xl font-bold text-tech-slate-dark">สาขาวิชา</h2>
             <p class="mt-2 text-lg text-gray-600">เลือกเส้นทางอาชีพที่เหมาะกับคุณ</p>
-            {{-- เส้นคั่น --}}
             <div class="mt-4 h-1 w-24 bg-tech-green rounded-full"></div>
         </div>
 
-        {{-- 
-            Grid Layout (Replaces Swiper)
-            - 1 คอลัมน์บนมือถือ (sm)
-            - 2 คอลัมน์บนแท็บเล็ต (md)
-            - 4 คอลัมน์บนเดสก์ท็อป (lg)
-        --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {{-- Departments Grid --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
 
-            {{-- 
-                สมมติว่า $departments เป็น array/collection
-                ถ้า $dept เป็น object ให้ใช้ $dept->name
-                ถ้าเป็น array ให้ใช้ $dept['name'] (โค้ดเดิมของคุณพู่กันใช้ array)
-            --}}
             @foreach ($departments as $dept)
-                {{-- 
-                    1. ใช้ <a> ครอบทั้งหมดเป็นการ์ด
-                    2. ใช้ 'group' เพื่อให้ hover effect (เช่น ลูกศร) ทำงาน
-                --}}
                 <a class="group block h-full">
-
-                    {{-- 
-                        Card UI (New Design)
-                        - h-full เพื่อให้การ์ดสูงเท่ากัน
-                        - transition-all, hover:-translate-y-1, hover:shadow-xl คือ hover effect
-                    --}}
                     <div
                         class="relative p-6 bg-white rounded-2xl shadow-lg h-full
                                 transition-all duration-300 ease-in-out 
                                 hover:shadow-xl hover:-translate-y-1">
 
-                        {{-- Icon (ย้ายมาไว้ข้างใน) --}}
+                        {{-- Icon --}}
                         <div
-                            class="mb-4 flex items-center justify-center w-16 h-16 rounded-full {{ $dept['bg_color_class'] }}">
+                            class="mb-4 flex items-center justify-center w-16 h-16 rounded-full {{ $dept['bg_color_class'] }} border {{ $dept['border_color_class'] }} transition-transform duration-300 group-hover:scale-110">
                             <svg class="w-8 h-8 {{ $dept['icon_color_class'] }}" fill="none" stroke="currentColor"
                                 stroke-width="2" viewBox="0 0 24 24">
                                 {!! $dept['svg_path'] !!}
@@ -175,20 +154,19 @@
                         </div>
 
                         {{-- Content --}}
-                        <div class="pt-4">
+                        <div class="pt-4 text-center lg:text-left">
                             <h3 class="text-lg md:text-xl font-bold text-tech-slate-dark mb-1">
                                 {{ $dept['name'] }}
                             </h3>
-                            <p class="text-sm text-gray-600 line-clamp-3"> {{-- กันข้อความยาว --}}
+                            <p class="text-sm text-gray-600 line-clamp-3">
                                 {{ $dept['description'] }}
                             </p>
                         </div>
-
 
                     </div>
                 </a>
             @endforeach
 
-        </div> {{-- End Grid --}}
-    </div> {{-- End Container --}}
+        </div>
+    </div>
 </section>
