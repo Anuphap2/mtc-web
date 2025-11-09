@@ -39,7 +39,7 @@
                             <img src="{{ $featured->image_path ? Storage::url($featured->image_path) : asset('images/nopic.png') }}"
                                 alt="{{ $featured->title }}"
                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                loading="lazy">
+                                fetchpriority="high">
 
                             {{-- Overlay gradient + text --}}
                             <div class="absolute inset-0 hero-slide-overlay flex justify-center items-center">

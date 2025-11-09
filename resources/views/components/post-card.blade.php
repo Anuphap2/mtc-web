@@ -3,7 +3,7 @@
 <a href="{{ route('post.show', $post) }}"
     class="group relative block rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition transform hover:-translate-y-1">
     <div class="relative h-60 overflow-hidden">
-        <img src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/nopic.png') }}"
+        <img src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/nopic.webp') }}"
             alt="{{ $post->title }}" class="w-full h-full object-cover transition-transform duration-500" loading="lazy">
         <div
             class="absolute inset-0 bg-black/25 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">

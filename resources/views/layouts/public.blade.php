@@ -65,7 +65,7 @@
                 <div class="flex justify-between items-center h-20">
                     {{-- Logo --}}
                     <a href="{{ route('home') }}" class="flex items-center space-x-3">
-                        <img class="h-14 w-auto" src="{{ asset('images/logo.png') }}" alt="Logo MTC" loading="lazy">
+                        <img class="h-14 w-auto" src="{{ asset('images/logo.webp') }}" alt="Logo MTC" loading="lazy">
                         <span class="font-bold text-lg text-tech-slate-dark">วิทยาลัยเทคนิคแม่สอด</span>
                     </a>
 

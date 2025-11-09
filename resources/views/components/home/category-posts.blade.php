@@ -106,7 +106,7 @@
                                         class="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200">
 
                                         {{-- Thumbnail --}}
-                                        <img src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/nopic.png') }}"
+                                        <img src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/nopic.webp') }}"
                                             alt="{{ $post->title }}"
                                             class="w-16 h-16 rounded-xl object-cover flex-shrink-0">
 
