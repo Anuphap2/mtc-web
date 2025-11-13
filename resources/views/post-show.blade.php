@@ -32,13 +32,11 @@
             <div class="bg-white rounded-lg shadow-xl overflow-hidden">
 
 
-                <div class="w-full h-64 md:h-96 bg-gray-100 flex items-center justify-center">
-                    <img class="max-h-full object-contain"
+                <div class="w-full h-64 md:h-96 bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <img class="h-full w-auto object-contain"
                         src="{{ $post->image_path ? Storage::url($post->image_path) : asset('images/nopic.png') }}"
                         alt="{{ $post->title }}" loading="lazy">
                 </div>
-
-
 
                 <div class="p-6 md:p-10">
 
