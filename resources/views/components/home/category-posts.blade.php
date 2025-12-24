@@ -15,9 +15,10 @@
      * 2. ข้อมูลหน่วยงานที่เกี่ยวข้อง
      */
     $externalLinks = [
-        ['name' => 'ศูนย์ความปลอดภัย (V-COP)', 'url' => 'https://v-cop.go.th/'],
-        ['name' => 'สถาบันการอาชีวศึกษา (IPA)', 'url' => 'https://ipa.vec.go.th/'],
+        ['name' => 'สำนักงานคณะกรรมการการอาชีวศึกษา', 'url' => 'https://vec.go.th/Default.aspx?tabid=55'],
         ['name' => 'กองบริหารงานบุคคล (HR-VEC)', 'url' => 'https://hr.vec.go.th/'],
+        ['name' => 'สถาบันการอาชีวศึกษา (IPA)', 'url' => 'https://ipa.vec.go.th/'],
+        ['name' => 'ศูนย์ความปลอดภัย (V-COP)', 'url' => 'https://v-cop.go.th/'],
     ];
 
     /**
