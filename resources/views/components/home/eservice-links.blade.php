@@ -21,7 +21,7 @@
         ],
         [
             'name' => 'Email',
-            'url' => 'https://mail.dbtmaesod.com',
+            'url' => 'mailto:maesodtak03@hotmail.co.th',
             'icon_color_class' => 'text-purple-600',
             'bg_color_class' => 'bg-purple-100',
             'border_color_class' => 'border-purple-200',
@@ -30,7 +30,7 @@
         ],
         [
             'name' => 'V-COP',
-            'url' => 'https://vcop.dbtmaesod.com',
+            'url' => 'https://v-cop.go.th/',
             'icon_color_class' => 'text-orange-600',
             'bg_color_class' => 'bg-orange-100',
             'border_color_class' => 'border-orange-200',
@@ -54,15 +54,21 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 lg:gap-8">
 
             @foreach ($services as $service)
-                <a href="{{ $service['url'] }}" target="_blank"
-                    class="flex flex-col items-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100
-                          transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-tech-green/50">
+                @php
+                    // เช็คว่าเป็นอีเมลแบบ mailto: หรือไม่ (เผื่อพู่กันอยากสลับไปมา)
+                    $isMailto = str_starts_with($service['url'], 'mailto:');
+                @endphp
 
-                    {{-- Icon --}}
+                <a href="{{ $service['url'] }}" {{-- ถ้าไม่ใช่ mailto ให้เปิด Tab ใหม่เสมอ --}}
+                    @if (!$isMailto) target="_blank" @endif {{-- สำคัญมาก: ต้องมีคลาส 'group' เพื่อให้ group-hover ด้านในทำงาน --}}
+                    class="group flex flex-col items-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100
+              transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-tech-green/50">
+
+                    {{-- Icon Container --}}
                     <div
                         class="w-20 h-20 flex items-center justify-center rounded-full mb-5
-                                border-2 {{ $service['bg_color_class'] }} {{ $service['border_color_class'] }}
-                                transition-all duration-300 group-hover:scale-110">
+                    border-2 {{ $service['bg_color_class'] }} {{ $service['border_color_class'] }}
+                    transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-10 h-10 {{ $service['icon_color_class'] }}">
                             {!! $service['svg_path'] !!}
@@ -71,16 +77,16 @@
 
                     {{-- Name --}}
                     <h3
-                        class="font-semibold text-lg text-tech-slate-dark transition-colors group-hover:text-tech-green flex items-center justify-center">
+                        class="font-semibold text-lg text-tech-slate-dark transition-colors group-hover:text-tech-green flex items-center justify-center font-['Sarabun']">
                         {{ $service['name'] }}
+                        {{-- ลูกศรที่จะโผล่ออกมาตอนเอาเมาส์วาง --}}
                         <svg class="w-4 h-4 ml-2 opacity-0 transform -translate-x-2
-                                    group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+                        group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                         </svg>
                     </h3>
-
                 </a>
             @endforeach
 

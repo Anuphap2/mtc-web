@@ -256,22 +256,42 @@
                     </div>
 
                     {{-- ระบบงานออนไลน์ --}}
-                    <div>
-                        <h5 class="text-lg font-semibold text-white mb-3">ระบบงานออนไลน์</h5>
-                        <ul class="space-y-2 text-sm">
-                            <li><a href="/maesod/detailsnews?ids=202"
-                                    class="hover:text-white hover:underline">ระบบรับสมัครนักเรียนนักศึกษาวิทยาลัยเทคนิคแม่สอด</a>
+                     <div>
+                        <h5 class="text-lg font-semibold text-white mb-4 font-['Sarabun']">ระบบงานออนไลน์</h5>
+                        <ul class="space-y-3 text-sm font-['Sarabun']">
+                            <li>
+                                <a href="https://admission.dbtmaesod.com/" target="_blank" rel="noopener noreferrer"
+                                    class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                    <span class="mr-2">›</span> ระบบรับสมัครนักเรียนนักศึกษา
+                                </a>
                             </li>
-                            <li><a href="/maesod/detailsnews?ids=201"
-                                    class="hover:text-white hover:underline">ระบบฐานข้อมูลอาชีวศึกษา</a></li>
-                            <li><a href="/maesod/detailsnews?ids=200"
-                                    class="hover:text-white hover:underline">ระบบติดตามผู้เรียนสำหรับครูและเจ้าหน้าที่</a>
+                            <li>
+                                <a href="https://v-cop.go.th/" target="_blank" rel="noopener noreferrer"
+                                    class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                    <span class="mr-2">›</span> ระบบฐานข้อมูลอาชีวศึกษา (V-COP)
+                                </a>
                             </li>
-                            <li><a href="/maesod/detailsnews?ids=199"
-                                    class="hover:text-white hover:underline">ระบบติดตามผู้เรียนสำหรับนักเรียน/นักศึกษา</a>
+                            <li>
+                                <a href="https://maesod.appedr.com/edr/login.do" target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                    <span class="mr-2">›</span> ระบบติดตามผู้เรียนสำหรับครูและเจ้าหน้าที่
+                                </a>
                             </li>
-                            <li><a href="/maesod/detailsnews?ids=198"
-                                    class="hover:text-white hover:underline">ระบบติดตามผู้เรียนสำหรับผู้ปกครอง</a></li>
+                            <li>
+                                <a href="https://maesod.appedr.com/edr/login.do" target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                    <span class="mr-2">›</span> ระบบติดตามผู้เรียนสำหรับนักเรียน/นักศึกษา
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://maesod.appedr.com/edr/login.do" target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="text-gray-300 hover:text-white hover:underline transition-colors flex items-center">
+                                    <span class="mr-2">›</span> ระบบติดตามผู้เรียนสำหรับผู้ปกครอง
+                                </a>
+                            </li>
                         </ul>
                     </div>
 

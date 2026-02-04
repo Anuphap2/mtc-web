@@ -4,6 +4,7 @@
         [
             'name' => 'เทคโนโลยีธุรกิจดิจิทัล',
             'description' => 'ผสมผสานเทคโนโลยีดิจิทัลกับการดำเนินธุรกิจยุคใหม่',
+            'url' => 'https://www.facebook.com/profile.php?id=100057143242558',
             'icon_color_class' => 'text-blue-600',
             'bg_color_class' => 'bg-blue-100',
             'border_color_class' => 'border-blue-200',
@@ -135,18 +136,19 @@
         </div>
 
         {{-- Departments Grid --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 font-['Sarabun']">
 
             @foreach ($departments as $dept)
-                <a class="group block h-full">
+                {{-- ใส่ href เข้าไปที่นี่ --}}
+                <a href="{{ $dept['url'] ?? '#' }}" target="_blank" class="group block h-full">
                     <div
                         class="relative p-6 bg-white rounded-2xl shadow-lg h-full
-                                transition-all duration-300 ease-in-out 
-                                hover:shadow-xl hover:-translate-y-1">
+                        transition-all duration-300 ease-in-out 
+                        hover:shadow-2xl hover:-translate-y-2 hover:border-tech-green/30 border border-transparent">
 
                         {{-- Icon --}}
                         <div
-                            class="mb-4 flex items-center justify-center w-16 h-16 rounded-full {{ $dept['bg_color_class'] }} border {{ $dept['border_color_class'] }} transition-transform duration-300 group-hover:scale-110">
+                            class="mb-4 flex items-center justify-center w-16 h-16 rounded-full {{ $dept['bg_color_class'] }} border {{ $dept['border_color_class'] }} transition-transform duration-500 group-hover:rotate-[360deg]">
                             <svg class="w-8 h-8 {{ $dept['icon_color_class'] }}" fill="none" stroke="currentColor"
                                 stroke-width="2" viewBox="0 0 24 24">
                                 {!! $dept['svg_path'] !!}
@@ -155,12 +157,22 @@
 
                         {{-- Content --}}
                         <div class="pt-4 text-center lg:text-left">
-                            <h3 class="text-lg md:text-xl font-bold text-tech-slate-dark mb-1">
+                            <h3
+                                class="text-lg md:text-xl font-bold text-tech-slate-dark mb-2 group-hover:text-tech-green transition-colors">
                                 {{ $dept['name'] }}
                             </h3>
-                            <p class="text-sm text-gray-600 line-clamp-3">
+                            <p class="text-sm text-gray-600 line-clamp-3 leading-relaxed">
                                 {{ $dept['description'] }}
                             </p>
+
+                            {{-- เพิ่มปุ่ม "ดูรายละเอียด" เล็กๆ เพื่อให้รู้ว่ากดได้ --}}
+                            <div
+                                class="mt-4 text-xs font-bold text-tech-green opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center lg:justify-start">
+                                อ่านรายละเอียดเพิ่มเติม
+                                <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
                         </div>
 
                     </div>
