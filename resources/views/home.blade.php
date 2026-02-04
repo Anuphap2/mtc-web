@@ -41,61 +41,64 @@
     {{-- 3. POSTS BY CATEGORY --}}
     <x-home.category-posts :categoriesWithPosts="$categoriesWithPosts" />
 
-    <div id="video-gallery" class="row">
-        <p id="loading">กำลังดึงวิดีโอลาสุด...</p>
-    </div>
+    <section class="py-16 bg-tech-slate-light">
+        <div class="container mx-auto px-4 flex flex-col items-center">
 
-    <script>
-        (async function() {
-            const pageId = 'Mtcpr619'; // ใส่แค่ ID หรือ Username เพจ
-            const container = document.getElementById('video-gallery');
+            {{-- Header --}}
+            <div class="text-center mb-10">
+                <h2 class="text-2xl font-bold text-tech-slate-dark tracking-tight">ข่าวสารล่าสุดจาก Facebook</h2>
+                <div class="mt-2 h-1 w-12 bg-tech-green mx-auto rounded-full opacity-70"></div>
+            </div>
 
-            try {
-                // ดึง HTML ผ่าน Proxy เพื่อเลี่ยง CORS
-                const response = await fetch(
-                    `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.facebook.com/' + pageId + '/videos')}`
-                    );
-                const data = await response.json();
-                const html = data.contents;
+            {{-- กรอบด้านนอกแบบโปร่งแสง --}}
+            <div class="relative group w-full max-w-[540px]">
 
-                // Regex ตัวนี้จะดึงเลข 15-16 หลักที่เป็น Video ID ได้แม่นขึ้น
-                const regex = /"videoID":"(\d+)"/g;
-                let matches;
-                const videoIds = [];
-
-                while ((matches = regex.exec(html)) !== null) {
-                    videoIds.push(matches[1]);
-                }
-
-                const uniqueIds = [...new Set(videoIds)].slice(0, 6);
-
-                if (uniqueIds.length === 0) {
-                    document.getElementById('loading').innerText = 'ไม่พบวิดีโอสาธารณะในเพจนี้';
-                    return;
-                }
-
-                container.innerHTML = '';
-                uniqueIds.forEach(id => {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-4 mb-4';
-                    col.innerHTML = `
-                <div style="background:#000; border-radius:8px; overflow:hidden;">
-                    <iframe 
-                        src="https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/watch/?v=${id}&show_text=0" 
-                        width="100%" height="250" style="border:none;overflow:hidden" scrolling="no" 
-                        frameborder="0" allowfullscreen="true"
-                        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
-                    </iframe>
+                {{-- เอฟเฟกต์แสง Glow ด้านหลัง (เน้นสีให้ชัดขึ้นเมื่อเอาเมาส์ชี้) --}}
+                <div
+                    class="absolute -inset-1 bg-gradient-to-r from-tech-green to-blue-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-700">
                 </div>
-            `;
-                    container.appendChild(col);
-                });
-            } catch (error) {
-                console.error(error);
-                document.getElementById('loading').innerText = 'ระบบดึงข้อมูลขัดข้อง';
-            }
-        })();
-    </script>
+
+                {{-- ตัว Container หลัก (เปลี่ยนจาก bg-white เป็นแบบโปร่งแสง/Glass) --}}
+                <div
+                    class="relative bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 overflow-hidden shadow-xl">
+
+                    {{-- หัวข้อ Browser Mockup (ปรับให้สีกลืนกับกระจก) --}}
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-white/20">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-red-400/80 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-400/80 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-400/80 rounded-full"></div>
+                        </div>
+                        <span class="text-[10px] font-bold text-tech-slate-dark/50 uppercase tracking-[0.2em]">Official
+                            Feed</span>
+                    </div>
+
+                    {{-- Facebook Plugin --}}
+                    <div class="flex justify-center overflow-hidden bg-white/10">
+                        <div class="fb-page" data-href="https://www.facebook.com/Mtcpr619" data-tabs="timeline"
+                            data-width="500" data-height="600" data-small-header="true"
+                            data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="false">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ปุ่มกด --}}
+                <div class="mt-8 text-center">
+                    <a href="https://www.facebook.com/Mtcpr619/videos" target="_blank"
+                        class="group/btn inline-flex items-center px-8 py-3 bg-tech-slate-dark text-white font-bold rounded-full transition-all hover:bg-tech-green hover:shadow-[0_8px_25px_rgba(0,166,81,0.4)] hover:-translate-y-1">
+                        <span>ดูวิดีโอกิจกรรมทั้งหมด</span>
+                        <svg class="w-5 h-5 ml-2 transform group-hover/btn:translate-x-1 transition-transform"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7-7 7M5 12h16" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
 
     {{-- 4. E-SERVICE LINKS --}}
     <x-home.eservice-links />
@@ -193,7 +196,8 @@
                     <div class="p-5">
                         <span
                             class="px-3 py-1 text-xs font-semibold text-purple-600 bg-purple-50 rounded-full">อิเล็กทรอนิกส์</span>
-                        <h3 class="mt-3 text-lg font-bold text-gray-800 leading-snug">การใช้งานโปรแกรม Proteus เบื้องต้น
+                        <h3 class="mt-3 text-lg font-bold text-gray-800 leading-snug">การใช้งานโปรแกรม Proteus
+                            เบื้องต้น
                         </h3>
                         <p class="mt-2 text-sm text-gray-600 line-clamp-2">
                             เรียนรู้การเขียนแบบอิเล็กทรอนิกส์ด้วยคอมพิวเตอร์แบบ Step-by-Step</p>

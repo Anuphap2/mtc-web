@@ -20,6 +20,7 @@ class HomeController extends Controller
      */
     public function index(): View
     {
+
         // ✅ ข่าวเด่น (5 ข่าวล่าสุด)
         $featuredPosts = Post::select('id', 'title', 'image_path', 'category_id', 'created_at')
             ->with('category:id,name')
