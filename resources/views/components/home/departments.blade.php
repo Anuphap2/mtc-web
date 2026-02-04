@@ -141,7 +141,7 @@
             <div class="flex justify-center">
                 <button 
                     @click="open = !open" 
-                    class="inline-flex items-center px-6 py-3 bg-white border-2 border-tech-green text-tech-green font-bold rounded-full transition-all duration-300 hover:bg-tech-green shadow-md active:scale-95"
+                    class="inline-flex items-center px-6 py-3 bg-white border-2 border-tech-green text-tech-green font-bold rounded-full transition-all duration-300 shadow-md active:scale-95"
                 >
                     <span x-text="open ? 'ย่อหน้าจอเก็บ' : 'ดูรายชื่อสาขาวิชาทั้งหมด'"></span>
                     <svg 
