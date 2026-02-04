@@ -125,60 +125,68 @@
 {{-- =========================================================
     SECTION 5: DEPARTMENTS (Redesign 2.0)
 ========================================================== --}}
-<section class="py-14 bg-tech-slate-light">
+{{-- ต้องมั่นใจว่ามี Alpine.js ในโปรเจกต์นะครับ --}}
+<section class="py-14 bg-tech-slate-light" x-data="{ open: false }">
     <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {{-- Header --}}
-        <div class="mb-12 text-center lg:text-left">
-            <h2 class="text-3xl md:text-4xl font-bold text-tech-slate-dark">สาขาวิชา</h2>
-            <p class="mt-2 text-lg text-gray-600">เลือกเส้นทางอาชีพที่เหมาะกับคุณ</p>
-            <div class="mt-4 h-1 w-24 bg-tech-green rounded-full"></div>
+        {{-- Header & Button --}}
+        <div class="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div class="text-center md:text-left">
+                <h2 class="text-3xl md:text-4xl font-bold text-tech-slate-dark">สาขาวิชา</h2>
+                <p class="mt-2 text-lg text-gray-600">เลือกเส้นทางอาชีพที่เหมาะกับคุณ</p>
+                <div class="mt-4 h-1 w-24 bg-tech-green rounded-full mx-auto md:mx-0"></div>
+            </div>
+
+            {{-- ปุ่มสำหรับกดดูทั้งหมด/ย่อเก็บ --}}
+            <div class="flex justify-center">
+                <button 
+                    @click="open = !open" 
+                    class="inline-flex items-center px-6 py-3 bg-white border-2 border-tech-green text-tech-green font-bold rounded-full transition-all duration-300 hover:bg-tech-green shadow-md active:scale-95"
+                >
+                    <span x-text="open ? 'ย่อหน้าจอเก็บ' : 'ดูรายชื่อสาขาวิชาทั้งหมด'"></span>
+                    <svg 
+                        class="ml-2 w-5 h-5 transition-transform duration-300" 
+                        :class="open ? 'rotate-180' : ''"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+            </div>
         </div>
 
-        {{-- Departments Grid --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 font-['Sarabun']">
-
-            @foreach ($departments as $dept)
-                {{-- ใส่ href เข้าไปที่นี่ --}}
-                <a href="{{ $dept['url'] ?? '#' }}" target="_blank" class="group block h-full">
-                    <div
-                        class="relative p-6 bg-white rounded-2xl shadow-lg h-full
-                        transition-all duration-300 ease-in-out 
-                        hover:shadow-2xl hover:-translate-y-2 hover:border-tech-green/30 border border-transparent">
-
-                        {{-- Icon --}}
-                        <div
-                            class="mb-4 flex items-center justify-center w-16 h-16 rounded-full {{ $dept['bg_color_class'] }} border {{ $dept['border_color_class'] }} transition-transform duration-500 group-hover:rotate-[360deg]">
-                            <svg class="w-8 h-8 {{ $dept['icon_color_class'] }}" fill="none" stroke="currentColor"
-                                stroke-width="2" viewBox="0 0 24 24">
-                                {!! $dept['svg_path'] !!}
-                            </svg>
-                        </div>
-
-                        {{-- Content --}}
-                        <div class="pt-4 text-center lg:text-left">
-                            <h3
-                                class="text-lg md:text-xl font-bold text-tech-slate-dark mb-2 group-hover:text-tech-green transition-colors">
-                                {{ $dept['name'] }}
-                            </h3>
-                            <p class="text-sm text-gray-600 line-clamp-3 leading-relaxed">
-                                {{ $dept['description'] }}
-                            </p>
-
-                            {{-- เพิ่มปุ่ม "ดูรายละเอียด" เล็กๆ เพื่อให้รู้ว่ากดได้ --}}
-                            <div
-                                class="mt-4 text-xs font-bold text-tech-green opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center lg:justify-start">
-                                อ่านรายละเอียดเพิ่มเติม
-                                <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 5l7 7-7 7"></path>
+        {{-- Departments Grid (Hidden by default) --}}
+        <div 
+            x-show="open" 
+            x-collapse.duration.500ms
+            style="display: none;" {{-- ป้องกันอาการวูบตอนโหลดหน้า --}}
+        >
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                @foreach ($departments as $dept)
+                    <a href="{{ $dept['url'] ?? '#' }}" target="_blank" class="group block h-full">
+                        <div class="relative p-6 bg-white rounded-2xl shadow-lg h-full transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2 hover:border-tech-green/30 border border-transparent">
+                            
+                            {{-- Icon --}}
+                            <div class="mb-4 flex items-center justify-center w-16 h-16 rounded-full {{ $dept['bg_color_class'] }} border {{ $dept['border_color_class'] }} transition-transform duration-500 group-hover:rotate-[360deg]">
+                                <svg class="w-8 h-8 {{ $dept['icon_color_class'] }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    {!! $dept['svg_path'] !!}
                                 </svg>
                             </div>
+
+                            {{-- Content --}}
+                            <div class="pt-4 text-center lg:text-left">
+                                <h3 class="text-lg md:text-xl font-bold text-tech-slate-dark mb-2 group-hover:text-tech-green transition-colors">
+                                    {{ $dept['name'] }}
+                                </h3>
+                                <p class="text-sm text-gray-600 line-clamp-3 leading-relaxed">
+                                    {{ $dept['description'] }}
+                                </p>
+                            </div>
                         </div>
-
-                    </div>
-                </a>
-            @endforeach
-
+                    </a>
+                @endforeach
+            </div>
         </div>
+
     </div>
 </section>

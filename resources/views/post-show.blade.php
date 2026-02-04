@@ -98,20 +98,27 @@
                     @endif
 
 
+                    <hr class="my-8 border-gray-200">
 
+                    {{-- [ปรับปรุง] 3. ส่วนโพสต์ที่เกี่ยวข้อง --}}
 
-                    {{-- [ปรับปรุง] 3. ข่าวที่เกี่ยวข้อง: ใช้ <x-post-card> --}}
-                    @if (isset($relatedPosts) && $relatedPosts->count() > 0)
-                        <hr class="my-8 border-gray-200">
-                        <h2 class="text-2xl font-bold text-tech-slate-dark mb-4">ข่าวอื่นในประเภทนี้</h2>
+                    {{-- แถวที่ 1: กิจกรรมและประชาสัมพันธ์ (ใช้ตัวแปรเดิม) --}}
+                    <h2 class="text-2xl font-bold mb-4">กิจกรรมและประชาสัมพันธ์</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        @foreach ($relatedPosts as $related)
+                            <x-post-card :post="$related" />
+                        @endforeach
+                    </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            @foreach ($relatedPosts as $related)
-                                {{-- เรียกใช้ Component ที่เรามีอยู่แล้ว --}}
-                                <x-post-card :post="$related" />
-                            @endforeach
-                        </div>
-                    @endif
+                    <hr class="my-8">
+
+                    {{-- แถวที่ 2: ประกาศวิทยาลัยฯ (เพิ่มเข้ามาใหม่) --}}
+                    <h2 class="text-2xl font-bold mb-4">ประกาศวิทยาลัยเทคนิคแม่สอด</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        @foreach ($announcements as $announcement)
+                            <x-post-card :post="$announcement" />
+                        @endforeach
+                    </div>
 
                     {{-- [ปรับปรุง] 4. ปุ่มกลับหน้าหลัก --}}
                     <div class="mt-10 pt-6 border-t border-gray-200">

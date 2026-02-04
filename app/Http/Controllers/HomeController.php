@@ -62,24 +62,26 @@ class HomeController extends Controller
      * หน้าอ่านข่าว (แสดงข่าวที่เกี่ยวข้อง)
      * ---------------------------------------------------------
      */
-    public function show(Post $post): View
+    public function show($id): View
     {
-        // ✅ โหลดข้อมูลหมวดหมู่ของโพสต์หลัก
+        // 1. ดึงข้อมูลโพสต์หลัก (ใช้ id เพราะ URL พู่กันมาเป็น id)
+        $post = Post::findOrFail($id);
         $post->load('category:id,name');
 
-        // ✅ ข่าวที่เกี่ยวข้อง (จากหมวดเดียวกัน ยกเว้นตัวเอง)
-        $relatedPosts = collect();
-        if ($post->category_id) {
-            $relatedPosts = $this->_getPostsByCategory(
-                categoryId: $post->category_id,
-                excludeId: $post->id,
-                limit: 3
-            );
-        }
+        // 2. ดึง "ประกาศวิทยาลัยเทคนิคแม่สอด" 3 อันล่าสุด
+        $announcements = Post::whereHas('category', function ($q) {
+            $q->where('name', 'ประกาศวิทยาลัยเทคนิคแม่สอด');
+        })->where('id', '!=', $id)->latest()->take(3)->get();
 
-        return view('post-show', compact('post', 'relatedPosts'));
+        // 3. ดึง "กิจกรรมและประชาสัมพันธ์" 3 อันล่าสุด 
+        // และส่งไปในชื่อ $relatedPosts เพื่อให้หน้า Blade เดิมทำงานได้ทันที
+        $relatedPosts = Post::whereHas('category', function ($q) {
+            $q->where('name', 'กิจกรรมและประชาสัมพันธ์');
+        })->where('id', '!=', $id)->latest()->take(3)->get();
+
+        // เปลี่ยนจาก posts.show เป็น post-show ตามไฟล์ที่คุณมีจริง
+        return view('post-show', compact('post', 'announcements', 'relatedPosts'));
     }
-
     /**
      * ---------------------------------------------------------
      * หน้าแสดงข่าวตามหมวดหมู่ (Category)
